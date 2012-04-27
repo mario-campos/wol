@@ -47,37 +47,58 @@ int isMacAddress(const char *addr_str)
 
 int serializeMacAddress(const char *str, char *buf)
 {
-  unsigned char c, bigend, bufi, i;
+  unsigned char i, c, bigend, bufi;
   const unsigned int len = strlen(str);
 
-  for(i=0, bufi=0, bigend=TRUE; i < len; ++i) {
-    if(str[i] == ':' || str[i] == '-') {
-      c = 0;
+  for(i=0, c=0, bigend=TRUE, bufi=0; i < len; ++i) {
+    switch(str[i]) {
+    case ':':
       bufi++;
+      c = 0;
       bigend = TRUE;
       continue;
+    case '1':
+      c += 1; break;
+    case '2':
+      c += 2; break;
+    case '3':
+      c += 3; break;
+    case '4':
+      c += 4; break;
+    case '5':
+      c += 5; break;
+    case '6':
+      c += 6; break;
+    case '7':
+      c += 7; break;
+    case '8':
+      c += 8; break;
+    case '9':
+      c += 9; break;
+    case 'A':
+    case 'a':
+      c += 10; break;
+    case 'B':
+    case 'b':
+      c += 11; break;
+    case 'C':
+    case 'c':
+      c += 12; break;
+    case 'D':
+    case 'd':
+      c += 13; break;
+    case 'E':
+    case 'e':
+      c += 14; break;
+    case 'F':
+    case 'f':
+      c += 15; break;
     }
-    
-    if(str[i] == 'F' || str[i] == 'f') c += 15;
-    if(str[i] == 'E' || str[i] == 'e') c += 14;
-    if(str[i] == 'D' || str[i] == 'd') c += 13;
-    if(str[i] == 'C' || str[i] == 'c') c += 12;
-    if(str[i] == 'B' || str[i] == 'b') c += 11;
-    if(str[i] == 'A' || str[i] == 'a') c += 10;
-    if(str[i] == '9') c += 9;
-    if(str[i] == '8') c += 8;
-    if(str[i] == '7') c += 7;
-    if(str[i] == '6') c += 6;
-    if(str[i] == '5') c += 5;
-    if(str[i] == '4') c += 4;
-    if(str[i] == '3') c += 3;
-    if(str[i] == '2') c += 2;
-    if(str[i] == '1') c += 1;
 
     if(bigend == TRUE) {
       c *= 16;
       bigend = FALSE;
-    }
+    }    
     buf[bufi] = c;
   }
 
