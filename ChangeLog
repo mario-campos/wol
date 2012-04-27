@@ -1,0 +1,3 @@
+2012-04-27	Mario Campos	mcampos@mail.bradley.edu
+	* released the first functional version of WOL.
+	* supports MAC-48 addresses delimited by colons only.
