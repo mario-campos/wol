@@ -116,9 +116,6 @@ int main(unsigned int argc, char *argv[])
   /* ethernet broadcast address */
   unsigned char bcast_mac[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-  /* ethernet host mac address */
-  unsigned char host_mac[ETH_ALEN] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE };
-
   /* pointers to ethernet frame payload*/
   void *buf, *payload;
 
