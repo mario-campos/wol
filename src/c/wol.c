@@ -50,56 +50,54 @@ int serializeMacAddress(const char *str, char *buf)
   unsigned char i, c, bigend, bufi;
   const unsigned int len = strlen(str);
 
-  for(i=0, c=0, bigend=TRUE, bufi=0; i < len; ++i) {
+  for(i=0, c=0, bigend=TRUE, bufi=0; i < len; ++i, c=0) {
     switch(str[i]) {
     case ':':
       bufi++;
-      c = 0;
       bigend = TRUE;
       continue;
     case '1':
-      c += 1; break;
+      c = 1; break;
     case '2':
-      c += 2; break;
+      c = 2; break;
     case '3':
-      c += 3; break;
+      c = 3; break;
     case '4':
-      c += 4; break;
+      c = 4; break;
     case '5':
-      c += 5; break;
+      c = 5; break;
     case '6':
-      c += 6; break;
+      c = 6; break;
     case '7':
-      c += 7; break;
+      c = 7; break;
     case '8':
-      c += 8; break;
+      c = 8; break;
     case '9':
-      c += 9; break;
+      c = 9; break;
     case 'A':
     case 'a':
-      c += 10; break;
+      c = 10; break;
     case 'B':
     case 'b':
-      c += 11; break;
+      c = 11; break;
     case 'C':
     case 'c':
-      c += 12; break;
+      c = 12; break;
     case 'D':
     case 'd':
-      c += 13; break;
+      c = 13; break;
     case 'E':
     case 'e':
-      c += 14; break;
+      c = 14; break;
     case 'F':
     case 'f':
-      c += 15; break;
+      c = 15; break;
     }
 
     if(bigend == TRUE) {
-      c *= 16;
+      buf[bufi] = c * 16;
       bigend = FALSE;
-    }    
-    buf[bufi] = c;
+    } else buf[bufi] += c;   
   }
 
   return TRUE;
