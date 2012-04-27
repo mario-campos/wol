@@ -4,10 +4,17 @@ Copyright 2012 Mario Campos
 WOL is a command-line program for executing the Wake-On-LAN protocol over
 an ethernet local-area network. It requires a MAC address as an argument.
 
-It then proceeds to broadcast an ethernet frame over the LAN encapsulating
+Included are two programs that both execute WOL:
+1) The source for the C program. Must be compiled.
+2) The source for the Perl program. Can be executed as is.
+
+The perl script will require Net::Wake and will send an UDP packet. The 
+C-based WOL program will broadcast an ethernet frame over the LAN encapsulating
 a WOL "Magic Packet" for the intended hibernating computer.
 
-Example: ./wol 00:11:22:33:44:55
+Example: 
+	 ./wol 00:11:22:33:44:55
+	 ./wol.pl 00:11:22:33:44:55
 
 NOTE: For WOL to work, the intended hibernating target must support and
 be configured to listen for Wake-On-LAN packets via its BIOS, NIC or 
