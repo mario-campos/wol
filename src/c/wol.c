@@ -17,7 +17,6 @@
 #include <linux/if_ether.h>                    /* ETH_ALEN */
 #include <net/ethernet.h>                      /* struct ether_addr */
 #include <netinet/ether.h>                     /* ether_aton() */
-#include <regex.h>
 
 #define TRUE               1
 #define FALSE              0
@@ -25,26 +24,6 @@
 #define EXIT_SUCC          0
 #define WOL_FRAME_LEN      108                 /* Max Length of a Wake-On-LAN packet */
 #define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
-
-int isMacAddress(const char *addr_str)
-{
-  int retval;
-  regex_t mac48_regex;
-
-  /* compile regex */
-  if(regcomp(&mac48_regex, "^([:xdigit:]\\{1,2\\}:)\\{5,5\\}[:xdigit:]\\{2,2\\}$", 0) != 0) {
-    perror("regcomp");
-    exit(errno);
-  }
-    
-  if(regexec(&mac48_regex, addr_str, 0, NULL, 0))
-    retval = TRUE;
-  else 
-    retval = FALSE;
-
-  regfree(&mac48_regex);
-  return retval;
-}
 
 int main(unsigned int argc, char *argv[])
 {
@@ -68,9 +47,8 @@ int main(unsigned int argc, char *argv[])
   }
 
   /* input validation and serialization */
-  if(isMacAddress(argv[1]) == TRUE) wol_addr = ether_aton(argv[1]);
-  else {
-    fprintf(stderr, "error: argument doesn't match MAC-48 MAC-Address format\n");
+  if((wol_addr = ether_aton(argv[1])) == NULL) {
+    fprintf(stderr, "error: argument doesn't match MAC-48 address format\n");
     return EXIT_ERR;
   }
 
