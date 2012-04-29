@@ -113,9 +113,6 @@ int main(unsigned int argc, char *argv[])
   /* wake-on-lan target mac address */
   unsigned char wol_mac[ETH_ALEN];
 
-  /* ethernet broadcast address */
-  unsigned char bcast_mac[ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
   /* pointers to ethernet frame payload*/
   void *buf, *payload;
 
@@ -145,10 +142,9 @@ int main(unsigned int argc, char *argv[])
   payload = buf;
 
   /* prepare frame payload */
-  memcpy(payload, bcast_mac, ETH_ALEN);
+  memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
     memcpy(payload, wol_mac, ETH_ALEN);
-  payload = NULL;
 
   /* prepare socket destination struct */
   dest_addr.sll_family = AF_PACKET;
@@ -157,7 +153,7 @@ int main(unsigned int argc, char *argv[])
   dest_addr.sll_hatype = ARPHRD_ETHER;
   dest_addr.sll_pkttype = PACKET_BROADCAST;
   dest_addr.sll_halen = ETH_ALEN;
-  memcpy(dest_addr.sll_addr, bcast_mac, ETH_ALEN);
+  memset(dest_addr.sll_addr, 0xFF, ETH_ALEN);
 
   /* send "packet" (frame) */
   if(sendto(sockfd, buf, WOL_FRAME_LEN, 0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_ll)) == -1) {
