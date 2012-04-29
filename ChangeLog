@@ -1,3 +1,7 @@
+2012-04-28 	Mario Campos	mcampos@mail.bradley.edu
+	* implements a system call to convert the ascii mac address to hex.
+	* implements proper system structures for ethernet addresses.
+
 2012-04-27	Mario Campos	mcampos@mail.bradley.edu
 	* released the first functional version of WOL.
 	* supports MAC-48 addresses delimited by colons only.
