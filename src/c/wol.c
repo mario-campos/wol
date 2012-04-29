@@ -22,12 +22,35 @@
 #define FALSE              0
 #define EXIT_ERR           1
 #define EXIT_SUCC          0
+#define VERSION            "1.0b"              /* Current version number */
 #define WOL_FRAME_LEN      108                 /* Max Length of a Wake-On-LAN packet */
 #define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
+
+int arrayContains(char *str, char **array, unsigned int arraylen)
+{
+  unsigned int i;
+  for(i=0; i < arraylen; ++i)
+    if(strcmp(str, array[i]) == 0) return TRUE;
+  return FALSE;
+}
+
+void printHelp()
+{
+  puts("wol [--help|-h] [--quiet|-q] [--version|-v] [--interface|-i] [--password|-p] <mac address>");
+  puts("\t--help|-h\t\tPrints this help message and exit.");
+  puts("\t--quiet|-q\t\tDisable output.");
+  puts("\t--version|-v\t\tPrints version number and exit.");
+  puts("\t--interface|-i <name>\tSpecify the interface for the packet.");
+  puts("\t--password|-p <passwd>\tSend a hex password in the packet.");
+  puts("\t<mac address>\t\tMAC-48 address (colon or hyphen delimited).");
+}
 
 int main(unsigned int argc, char *argv[])
 {
   unsigned char i;
+  
+  /* disable output variable */
+  unsigned int quiet = FALSE;
 
   /* socket file descripter */
   int sockfd;
@@ -40,14 +63,22 @@ int main(unsigned int argc, char *argv[])
 
   /* packet destination */
   struct sockaddr_ll dest_addr;
+
+  if(arrayContains("-h", argv, argc) || arrayContains("--help", argv, argc)) {
+    printHelp();
+    return EXIT_SUCC;
+  }
   
-  if(argc != 2) {
-    fprintf(stderr, "Usage: %s <mac address>\n", argv[0]);
-    return EXIT_ERR;
+  if(arrayContains("-v", argv, argc) || arrayContains("--version", argv, argc)) {
+    printf("%s\n", VERSION);
+    return EXIT_SUCC;
   }
 
+  if(arrayContains("-q", argv, argc) || arrayContains("--quiet", argv, argc))
+    quiet = TRUE;
+
   /* input validation and serialization */
-  if((wol_addr = ether_aton(argv[1])) == NULL) {
+  if((wol_addr = ether_aton(argv[argc-1])) == NULL) {
     fprintf(stderr, "error: argument doesn't match MAC-48 address format\n");
     return EXIT_ERR;
   }
@@ -82,9 +113,10 @@ int main(unsigned int argc, char *argv[])
     return errno;
   }
 
-  printf("Magic Packet sent to %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
-	 wol_addr->ether_addr_octet[0], wol_addr->ether_addr_octet[1], wol_addr->ether_addr_octet[2],
-	 wol_addr->ether_addr_octet[3], wol_addr->ether_addr_octet[4], wol_addr->ether_addr_octet[5]);
+  if(quiet == FALSE) 
+    printf("Magic Packet sent to %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+	   wol_addr->ether_addr_octet[0], wol_addr->ether_addr_octet[1], wol_addr->ether_addr_octet[2],
+	   wol_addr->ether_addr_octet[3], wol_addr->ether_addr_octet[4], wol_addr->ether_addr_octet[5]);
 
   /* clean up */
   free(buf);
