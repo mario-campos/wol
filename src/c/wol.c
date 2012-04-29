@@ -16,6 +16,7 @@
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>                    /* ETH_ALEN */
 #include <net/ethernet.h>                      /* struct ether_addr */
+#include <net/if.h>                            /* if_nametoindex() */
 #include <netinet/ether.h>                     /* ether_aton() */
 
 #define TRUE               1
@@ -24,7 +25,8 @@
 #define EXIT_SUCC          0
 #define NO_INDEX           -1                  /* Illegal Array Index */
 #define VERSION            "1.0b"              /* Current version number */
-#define WOL_FRAME_LEN      108                 /* Max Length of a Wake-On-LAN packet */
+#define WOL_DATA_LEN       102                 /* Max Length of a Wake-On-LAN packet */
+#define WOL_PASSWD_LEN     6                   /* Max Length of a Wake-On-LAN password */
 #define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
 
 int aindex(char *str, char **array, unsigned int arraylen)
@@ -41,18 +43,24 @@ void printHelp()
   puts("\t--help|-h\t\tPrints this help message and exit.");
   puts("\t--quiet|-q\t\tDisable output.");
   puts("\t--version|-v\t\tPrints version number and exit.");
-  puts("\t--interface|-i <name>\tSpecify the interface for the packet.");
-  puts("\t--password|-p <passwd>\tSend a hex password in the packet.");
-  puts("\t<mac address>\t\tMAC-48 address (colon or hyphen delimited).");
+  puts("\t--interface|-i <name>\tSpecify the interface for the packet (default eth0).");
+  puts("\t--password|-p <passwd>\tSend a colon-delimited hex password (default none).");
+  puts("\t<mac address>\t\tMAC-48 address (colon delimited).");
 }
 
 int main(unsigned int argc, char *argv[])
 {
-  int index, sockfd;
-  unsigned char i, quiet, *iface_name;
-  void *buf, *payload;
-  struct sockaddr_ll dest_addr;
-  struct ether_addr *password, *wol_addr;
+  int index;
+  unsigned char i;
+  int buflen = WOL_DATA_LEN;                   /* buffer length */
+  int sockfd;                                  /* socket file descripter */
+  unsigned char iface_index = 0;               /* interface index number */
+  unsigned char use_passwd = FALSE;            /* assume no password */
+  unsigned char quiet = FALSE;                 /* assume verbose output */
+  void *buf, *payload, *passwd_buf;            /* Buffer pointers */
+  struct sockaddr_ll dest_addr;                /* ethernet frame dest address */
+  struct ether_addr *wol_addr;                 /* wol-target mac address */
+  struct ether_addr *password;                 /* wol password in mac-48 format */
 
   /* parse command-line for switches */
   if(aindex("-h", argv, argc) != NO_INDEX || aindex("--help", argv, argc) != NO_INDEX) {
@@ -72,17 +80,24 @@ int main(unsigned int argc, char *argv[])
      (index = aindex("--interface", argv, argc)) != NO_INDEX ||
      (index = aindex("-i", argv, argc))          != NO_INDEX
     )
-    iface_name = argv[index+1];
+    iface_index = if_nametoindex(argv[index+1]);
+  if(iface_index == 0) iface_index = if_nametoindex("eth0");
 
   if(
      (index = aindex("--password", argv, argc)) != NO_INDEX ||
      (index = aindex("-p", argv, argc))         != NO_INDEX
-    )
-    password = ether_aton(argv[index+1]);
+     ) {
+    if((password = ether_aton(argv[index+1])) == NULL) {
+      fprintf(stderr, "error: invalid password; follow password format\n");
+      return EXIT_ERR;
+    }
+    buflen = WOL_DATA_LEN + WOL_PASSWD_LEN;
+    use_passwd = TRUE;
+  }
 
   /* input validation and serialization */
   if((wol_addr = ether_aton(argv[argc-1])) == NULL) {
-    fprintf(stderr, "error: argument doesn't match MAC-48 address format\n");
+    fprintf(stderr, "error: target isn't a MAC-48 address\n");
     return EXIT_ERR;
   }
 
@@ -93,25 +108,28 @@ int main(unsigned int argc, char *argv[])
   }
 
   /* create buffer for payload */
-  buf = (void *) malloc(WOL_FRAME_LEN);
+  buf = (void *) malloc(buflen);
   payload = buf;
+  passwd_buf = buf + WOL_DATA_LEN;
 
   /* prepare frame payload */
   memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
     memcpy(payload, wol_addr->ether_addr_octet, ETH_ALEN);
+  if(use_passwd == TRUE)
+    memcpy(passwd_buf, password->ether_addr_octet, WOL_PASSWD_LEN);
 
   /* prepare socket destination struct */
   dest_addr.sll_family = AF_PACKET;
   dest_addr.sll_protocol = htons(ETH_P_WOL);
-  dest_addr.sll_ifindex = 2;
+  dest_addr.sll_ifindex = iface_index;
   dest_addr.sll_hatype = ARPHRD_ETHER;
   dest_addr.sll_pkttype = PACKET_BROADCAST;
   dest_addr.sll_halen = ETH_ALEN;
   memset(dest_addr.sll_addr, 0xFF, ETH_ALEN);
 
   /* send "packet" (frame) */
-  if(sendto(sockfd, buf, WOL_FRAME_LEN, 0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_ll)) == -1) {
+  if(sendto(sockfd, buf, buflen, 0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_ll)) == -1) {
     perror("sendto");
     return errno;
   }
