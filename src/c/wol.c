@@ -22,21 +22,22 @@
 #define FALSE              0
 #define EXIT_ERR           1
 #define EXIT_SUCC          0
+#define NO_INDEX           -1                  /* Illegal Array Index */
 #define VERSION            "1.0b"              /* Current version number */
 #define WOL_FRAME_LEN      108                 /* Max Length of a Wake-On-LAN packet */
 #define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
 
-int arrayContains(char *str, char **array, unsigned int arraylen)
+int aindex(char *str, char **array, unsigned int arraylen)
 {
   unsigned int i;
   for(i=0; i < arraylen; ++i)
-    if(strcmp(str, array[i]) == 0) return TRUE;
-  return FALSE;
+    if(strcmp(str, array[i]) == 0) return i;
+  return NO_INDEX;
 }
 
 void printHelp()
 {
-  puts("wol [--help|-h] [--quiet|-q] [--version|-v] [--interface|-i] [--password|-p] <mac address>");
+  puts("wol [--help|-h] [--quiet|-q] [--version|-v] [--interface|-i <name>] [--password|-p <passwd>] <mac address>");
   puts("\t--help|-h\t\tPrints this help message and exit.");
   puts("\t--quiet|-q\t\tDisable output.");
   puts("\t--version|-v\t\tPrints version number and exit.");
@@ -47,35 +48,37 @@ void printHelp()
 
 int main(unsigned int argc, char *argv[])
 {
-  unsigned char i;
-  
-  /* disable output variable */
-  unsigned int quiet = FALSE;
-
-  /* socket file descripter */
-  int sockfd;
-
-  /* wake-on-lan target mac address */
-  struct ether_addr *wol_addr;
-
-  /* pointers to ethernet frame payload*/
+  int index, sockfd;
+  unsigned char i, quiet, *iface_name;
   void *buf, *payload;
-
-  /* packet destination */
   struct sockaddr_ll dest_addr;
+  struct ether_addr *password, *wol_addr;
 
-  if(arrayContains("-h", argv, argc) || arrayContains("--help", argv, argc)) {
+  /* parse command-line for switches */
+  if(aindex("-h", argv, argc) != NO_INDEX || aindex("--help", argv, argc) != NO_INDEX) {
     printHelp();
     return EXIT_SUCC;
   }
   
-  if(arrayContains("-v", argv, argc) || arrayContains("--version", argv, argc)) {
+  if(aindex("-v", argv, argc) != NO_INDEX || aindex("--version", argv, argc) != NO_INDEX) {
     printf("%s\n", VERSION);
     return EXIT_SUCC;
   }
 
-  if(arrayContains("-q", argv, argc) || arrayContains("--quiet", argv, argc))
+  if(aindex("-q", argv, argc) != NO_INDEX || aindex("--quiet", argv, argc) != NO_INDEX)
     quiet = TRUE;
+
+  if(
+     (index = aindex("--interface", argv, argc)) != NO_INDEX ||
+     (index = aindex("-i", argv, argc))          != NO_INDEX
+    )
+    iface_name = argv[index+1];
+
+  if(
+     (index = aindex("--password", argv, argc)) != NO_INDEX ||
+     (index = aindex("-p", argv, argc))         != NO_INDEX
+    )
+    password = ether_aton(argv[index+1]);
 
   /* input validation and serialization */
   if((wol_addr = ether_aton(argv[argc-1])) == NULL) {
@@ -113,7 +116,7 @@ int main(unsigned int argc, char *argv[])
     return errno;
   }
 
-  if(quiet == FALSE) 
+  if(quiet != TRUE) 
     printf("Magic Packet sent to %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
 	   wol_addr->ether_addr_octet[0], wol_addr->ether_addr_octet[1], wol_addr->ether_addr_octet[2],
 	   wol_addr->ether_addr_octet[3], wol_addr->ether_addr_octet[4], wol_addr->ether_addr_octet[5]);
