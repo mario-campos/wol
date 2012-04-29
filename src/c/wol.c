@@ -14,8 +14,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <linux/if_packet.h>
-#include <linux/if_ether.h>
-#include <linux/if_arp.h>
+#include <linux/if_ether.h>                    /* ETH_ALEN */
+#include <net/ethernet.h>                      /* struct ether_addr */
+#include <netinet/ether.h>                     /* ether_aton() */
 #include <regex.h>
 
 #define TRUE               1
@@ -45,64 +46,6 @@ int isMacAddress(const char *addr_str)
   return retval;
 }
 
-int serializeMacAddress(const char *str, char *buf)
-{
-  unsigned char i, c, bigend, bufi;
-  const unsigned int len = strlen(str);
-
-  for(i=0, c=0, bigend=TRUE, bufi=0; i < len; ++i, c=0) {
-    switch(str[i]) {
-    case ':':
-      bufi++;
-      bigend = TRUE;
-      continue;
-    case '1':
-      c = 1; break;
-    case '2':
-      c = 2; break;
-    case '3':
-      c = 3; break;
-    case '4':
-      c = 4; break;
-    case '5':
-      c = 5; break;
-    case '6':
-      c = 6; break;
-    case '7':
-      c = 7; break;
-    case '8':
-      c = 8; break;
-    case '9':
-      c = 9; break;
-    case 'A':
-    case 'a':
-      c = 10; break;
-    case 'B':
-    case 'b':
-      c = 11; break;
-    case 'C':
-    case 'c':
-      c = 12; break;
-    case 'D':
-    case 'd':
-      c = 13; break;
-    case 'E':
-    case 'e':
-      c = 14; break;
-    case 'F':
-    case 'f':
-      c = 15; break;
-    }
-
-    if(bigend == TRUE) {
-      buf[bufi] = c * 16;
-      bigend = FALSE;
-    } else buf[bufi] += c;   
-  }
-
-  return TRUE;
-}
-
 int main(unsigned int argc, char *argv[])
 {
   unsigned char i;
@@ -111,7 +54,7 @@ int main(unsigned int argc, char *argv[])
   int sockfd;
 
   /* wake-on-lan target mac address */
-  unsigned char wol_mac[ETH_ALEN];
+  struct ether_addr *wol_addr;
 
   /* pointers to ethernet frame payload*/
   void *buf, *payload;
@@ -125,7 +68,7 @@ int main(unsigned int argc, char *argv[])
   }
 
   /* input validation and serialization */
-  if(isMacAddress(argv[1]) == TRUE) serializeMacAddress(argv[1], wol_mac);
+  if(isMacAddress(argv[1]) == TRUE) wol_addr = ether_aton(argv[1]);
   else {
     fprintf(stderr, "error: argument doesn't match MAC-48 MAC-Address format\n");
     return EXIT_ERR;
@@ -144,7 +87,7 @@ int main(unsigned int argc, char *argv[])
   /* prepare frame payload */
   memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
-    memcpy(payload, wol_mac, ETH_ALEN);
+    memcpy(payload, wol_addr->ether_addr_octet, ETH_ALEN);
 
   /* prepare socket destination struct */
   dest_addr.sll_family = AF_PACKET;
@@ -162,8 +105,8 @@ int main(unsigned int argc, char *argv[])
   }
 
   printf("Magic Packet sent to %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
-	 wol_mac[0], wol_mac[1], wol_mac[2],
-	 wol_mac[3], wol_mac[4], wol_mac[5]);
+	 wol_addr->ether_addr_octet[0], wol_addr->ether_addr_octet[1], wol_addr->ether_addr_octet[2],
+	 wol_addr->ether_addr_octet[3], wol_addr->ether_addr_octet[4], wol_addr->ether_addr_octet[5]);
 
   /* clean up */
   free(buf);
