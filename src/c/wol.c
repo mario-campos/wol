@@ -54,7 +54,7 @@ int main(unsigned int argc, char *argv[])
   unsigned char i;
   int buflen = WOL_DATA_LEN;                   /* buffer length */
   int sockfd;                                  /* socket file descripter */
-  unsigned char iface_index = 0;               /* interface index number */
+  unsigned char iface_index;                   /* interface index number */
   unsigned char use_passwd = FALSE;            /* assume no password */
   unsigned char quiet = FALSE;                 /* assume verbose output */
   void *buf, *payload, *passwd_buf;            /* Buffer pointers */
@@ -81,7 +81,8 @@ int main(unsigned int argc, char *argv[])
      (index = aindex("-i", argv, argc))          != NO_INDEX
     )
     iface_index = if_nametoindex(argv[index+1]);
-  if(iface_index == 0) iface_index = if_nametoindex("eth0");
+  else 
+    iface_index = 2;
 
   if(
      (index = aindex("--password", argv, argc)) != NO_INDEX ||
@@ -115,9 +116,9 @@ int main(unsigned int argc, char *argv[])
   /* prepare frame payload */
   memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
-    memcpy(payload, wol_addr->ether_addr_octet, ETH_ALEN);
-  if(use_passwd == TRUE)
-    memcpy(passwd_buf, password->ether_addr_octet, WOL_PASSWD_LEN);
+    memcpy(payload, wol_addr, ETH_ALEN);
+  if(use_passwd)
+    memcpy(passwd_buf, password, WOL_PASSWD_LEN);
 
   /* prepare socket destination struct */
   dest_addr.sll_family = AF_PACKET;
