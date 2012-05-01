@@ -11,9 +11,8 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <linux/if_packet.h>
+#include <sys/socket.h>                        /* socket */
+#include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <linux/if_ether.h>                    /* ETH_ALEN */
 #include <net/ethernet.h>                      /* struct ether_addr */
 #include <net/if.h>                            /* if_nametoindex() */
