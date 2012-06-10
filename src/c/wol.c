@@ -38,13 +38,13 @@ int aindex(char *str, char **array, unsigned int arraylen)
 
 void printHelp()
 {
-  puts("wol [--help|-h] [--quiet|-q] [--version|-v] [--interface|-i <name>] [--password|-p <passwd>] <mac address>");
-  puts("\t--help|-h\t\tPrints this help message and exit.");
-  puts("\t--quiet|-q\t\tDisable output.");
-  puts("\t--version|-v\t\tPrints version number and exit.");
-  puts("\t--interface|-i <name>\tSpecify the interface for the packet (default eth0).");
-  puts("\t--password|-p <passwd>\tSend a colon-delimited hex password (default none).");
-  puts("\t<mac address>\t\tMAC-48 address (colon delimited).");
+  puts("wol [--help|-h] [--quiet|-q] [--version|-v] [--interface|-i <name>] [--password|-p <passwd>] <mac address>\n");
+  puts("--help|-h\t\tPrints this help message and exit.");
+  puts("--quiet|-q\t\tDisable output.");
+  puts("--version|-v\t\tPrints version number and exit.");
+  puts("--interface|-i <name>\tSpecify the interface for the packet (default eth0).");
+  puts("--password|-p <passwd>\tSend a colon-delimited hex password (default none).");
+  puts("<mac address>\t\tMAC-48 address (colon delimited).");
 }
 
 int main(unsigned int argc, char *argv[])
