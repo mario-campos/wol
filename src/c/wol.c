@@ -56,7 +56,7 @@ int main(unsigned int argc, char *argv[])
   unsigned char iface_index;                   /* interface index number */
   unsigned char use_passwd = FALSE;            /* assume no password */
   unsigned char quiet = FALSE;                 /* assume verbose output */
-  void *buf, *payload, *passwd_buf;            /* Buffer pointers */
+  void *buf, *payload;                         /* Buffer pointers */
   struct sockaddr_ll dest_addr;                /* ethernet frame dest address */
   struct ether_addr *wol_addr;                 /* wol-target mac address */
   struct ether_addr *password;                 /* wol password in mac-48 format */
@@ -110,14 +110,13 @@ int main(unsigned int argc, char *argv[])
   /* create buffer for payload */
   buf = (void *) malloc(buflen);
   payload = buf;
-  passwd_buf = buf + WOL_DATA_LEN;
 
   /* prepare frame payload */
   memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
     memcpy(payload, wol_addr, ETH_ALEN);
   if(use_passwd)
-    memcpy(passwd_buf, password, WOL_PASSWD_LEN);
+    memcpy(payload, password, WOL_PASSWD_LEN);
 
   /* prepare socket destination struct */
   dest_addr.sll_family = AF_PACKET;
