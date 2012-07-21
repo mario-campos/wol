@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   unsigned int iface_index;                         /* interface index number */
   unsigned int use_passwd = FALSE;                  /* assume no password */
   unsigned int quiet = FALSE;                       /* assume verbose output */
-  void *buf, *payload;                              /* Buffer pointers */
+  void *buf = NULL, *payload;                       /* Buffer pointers */
   struct sockaddr_ll dest_addr;                     /* ethernet frame dest address */
   struct ether_addr *mac_addr, wol_addr, password;  /* mac address structure (6 bytes structs) */
 
