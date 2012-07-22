@@ -50,7 +50,7 @@ void printHelp()
 
 int main(int argc, char *argv[])
 {
-  int index;
+  int index, retval;
   unsigned char i;
   int buflen = WOL_DATA_LEN;                        /* buffer length */
   int sockfd = 0;                                   /* socket file descripter */
@@ -64,18 +64,21 @@ int main(int argc, char *argv[])
   /* no command-line arguments */
   if(argc == 1) {
     printHelp();
-    return EXIT_SUCC;
+    retval = EXIT_SUCC;
+    goto exit;
   }
 
   /* parse command-line for switches */
   if(aindex("-h", argv, argc) != NO_INDEX || aindex("--help", argv, argc) != NO_INDEX) {
     printHelp();
-    return EXIT_SUCC;
+    retval = EXIT_SUCC;
+    goto exit;
   }
   
   if(aindex("-v", argv, argc) != NO_INDEX || aindex("--version", argv, argc) != NO_INDEX) {
     printf("%s\n", VERSION);
-    return EXIT_SUCC;
+    retval = EXIT_SUCC;
+    goto exit;
   }
 
   if(aindex("-q", argv, argc) != NO_INDEX || aindex("--quiet", argv, argc) != NO_INDEX)
@@ -95,7 +98,8 @@ int main(int argc, char *argv[])
      ) {
     if((mac_addr = ether_aton(argv[index+1])) == NULL) {
       fprintf(stderr, "error: invalid password; follow password format\n");
-      return EXIT_ERR;
+      retval = EXIT_ERR;
+      goto exit;
     }
     buflen = WOL_DATA_LEN + WOL_PASSWD_LEN;
     use_passwd = TRUE;
@@ -105,14 +109,16 @@ int main(int argc, char *argv[])
   /* input validation and serialization */
   if((mac_addr = ether_aton(argv[argc-1])) == NULL) {
     fprintf(stderr, "error: target isn't a MAC-48 address\n");
-    return EXIT_ERR;
+    retval = EXIT_ERR;
+    goto exit;
   }
   memcpy(&wol_addr, mac_addr, WOL_PASSWD_LEN);
 
   /* create "packet" (ethernet frame) socket */
   if((sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL))) == -1) {
       perror("socket");
-      return errno;
+      retval = errno;
+      goto exit;
   }
 
   /* create buffer for payload */
@@ -138,7 +144,8 @@ int main(int argc, char *argv[])
   /* send "packet" (frame) */
   if(sendto(sockfd, buf, buflen, 0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_ll)) == -1) {
     perror("sendto");
-    return errno;
+    retval = errno;
+    goto exit;
   }
 
   if(quiet != TRUE) 
@@ -147,6 +154,7 @@ int main(int argc, char *argv[])
 	   wol_addr.ether_addr_octet[3], wol_addr.ether_addr_octet[4], wol_addr.ether_addr_octet[5]);
 
   /* clean up */
+ exit:
   if(buf != NULL) free(buf);
   if(sockfd != 0) close(sockfd);
   return EXIT_SUCC;
