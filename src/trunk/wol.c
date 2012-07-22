@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
+#include "wol.h"                               /* WOL definitions */
 #include <stdio.h>                             /* perror(), puts() */
 #include <string.h>                            /* memcpy() */
 #include <unistd.h>                            /* close() */
@@ -20,10 +21,6 @@
 #include <net/ethernet.h>                      /* struct ether_addr */
 #include <net/if.h>                            /* if_nametoindex() */
 #include <netinet/ether.h>                     /* ether_aton() */
-
-#define WOL_DATA_LEN       102                 /* Max Length of a Wake-On-LAN packet */
-#define WOL_PASSWD_LEN     6                   /* Max Length of a Wake-On-LAN password */
-#define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
 
 int aindex(char *str, char **array, unsigned int arraylen)
 {
