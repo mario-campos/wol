@@ -6,6 +6,7 @@
 ** Copyright 2012 Mario Campos
 */
 
+#include "common.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -20,12 +21,6 @@
 #include <net/if.h>                            /* if_nametoindex() */
 #include <netinet/ether.h>                     /* ether_aton() */
 
-#define TRUE               1
-#define FALSE              0
-#define EXIT_ERR           1
-#define EXIT_SUCC          0
-#define NO_INDEX           -1                  /* Illegal Array Index */
-#define VERSION            "1.0b"              /* Current version number */
 #define WOL_DATA_LEN       102                 /* Max Length of a Wake-On-LAN packet */
 #define WOL_PASSWD_LEN     6                   /* Max Length of a Wake-On-LAN password */
 #define ETH_P_WOL          0x0842              /* Ethernet Protocol ID for Wake-On-LAN */
