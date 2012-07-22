@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
   int index;
   unsigned char i;
   int buflen = WOL_DATA_LEN;                        /* buffer length */
-  int sockfd;                                       /* socket file descripter */
+  int sockfd = 0;                                   /* socket file descripter */
   unsigned int iface_index;                         /* interface index number */
   unsigned int use_passwd = FALSE;                  /* assume no password */
   unsigned int quiet = FALSE;                       /* assume verbose output */
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 	   wol_addr.ether_addr_octet[3], wol_addr.ether_addr_octet[4], wol_addr.ether_addr_octet[5]);
 
   /* clean up */
-  free(buf);
-  close(sockfd);
+  if(buf != NULL) free(buf);
+  if(sockfd != 0) close(sockfd);
   return EXIT_SUCC;
 }
