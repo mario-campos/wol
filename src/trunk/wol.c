@@ -7,6 +7,7 @@
 */
 
 #include "common.h"
+#include "secure.c"
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -52,6 +53,9 @@ int main(int argc, char *argv[])
   void *buf = NULL, *payload;                       /* Buffer pointers */
   struct sockaddr_ll dest_addr;                     /* ethernet frame dest address */
   struct ether_addr *mac_addr, wol_addr, password;  /* mac address structure (6 bytes structs) */
+
+  /* disable the use of core memory dumps */
+  no_core_dumps();
 
   /* no command-line arguments */
   if(argc == 1) {
