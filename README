@@ -8,7 +8,7 @@ Included are two programs that both execute WOL:
 1) The source for the C program. Must be compiled.
 2) The source for the Perl program. Can be executed as is.
 
-The perl script will require Net::Wake and will send an UDP packet. The 
+The perl script will require Net::Wake and will send a UDP packet. The 
 C-based WOL program will broadcast an ethernet frame over the LAN encapsulating
 a WOL "Magic Packet" for the intended hibernating computer.
 
