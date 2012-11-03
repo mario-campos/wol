@@ -1,0 +1,11 @@
+# Emacs temp files
+\#*\#
+*~
+
+# Build objects
+*.o
+*.h.gch
+
+# Binaries
+wol
+a.out
