@@ -1,18 +1,32 @@
 /*
-** Wake-On-LAN tool
-** sends a "magic packet" to the specified
-** computer on the ethernet LAN.
-**
-** Copyright 2012 Mario Campos
-*/
+ * Copyright 2012 iamrekcah
+ *
+ * This file is part of wol.
+ *
+ * wol is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wol is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with wol.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "common.h"
-#include "secure.c"
+/*
+ * wol.c
+ *
+ * Wake-On-LAN protocol function implementations and definitions
+ */
+
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <argp.h>
-#include "wol.h"                               /* WOL definitions */
 #include <stdio.h>                             /* perror(), puts() */
 #include <string.h>                            /* memcpy() */
 #include <unistd.h>                            /* close() */
@@ -24,101 +38,139 @@
 #include <net/if.h>                            /* if_nametoindex() */
 #include <netinet/ether.h>                     /* ether_aton() */
 
-const char *argp_program_version = "1.0 beta";
-const char *argp_program_bug_address = "<mario.andres.campos@gmail.com>";
+#include "wol.h"
+#include "common.h"
 
-struct arguments {
-  int use_q;
-  int use_p;
-  int use_i;
-  const char *ifacename;
-  const char *password;
-  const char *target;
-};
 
-error_t parser(int key, char *arg, struct argp_state *state)
-{
-  int retval;
-  struct arguments *arguments = state->input;
-  
-  switch(key) {
-    /* parsed --{quiet|silent} | -{q|s} */
-  case 'q':
-  case 's':
-    arguments->use_q = TRUE;
-    goto EXIT0;
- 
-    /* parsed --interface | -i */
-  case 'i':
-    arguments->use_i = TRUE;
-    arguments->ifacename = arg;
-    goto EXIT0;
+/*
+ * Send a "magic" (WOL) Ethernet frame to the given MAC address.
+ *
+ * params:
+ *   mac_addr : A pointer to the target's MAC address struct.
+ *
+ * returns:
+ *   0 : on success.
+ */
+int
+send_magicpkt(struct ether_addr *macaddr) {
 
-    /* parsed --password | -p */
-  case 'p':
-    arguments->use_p = TRUE;
-    arguments->password = arg;
-    goto EXIT0;
-
-    /* parsed <target mac addr> */
-  case ARGP_KEY_ARG:
-    arguments->target = arg;
-    goto EXIT0;
-
-    /* <target mac addr> not provided */
-  case ARGP_KEY_NO_ARGS:
-    goto EXITFAIL;
-
-  default:
-    goto EXITFAIL;
-  }
-
- EXIT0:
-  retval = 0;
-  goto EXIT;
-
- EXITFAIL:
-  retval = ARGP_ERR_UNKNOWN;
-  goto EXIT;
-
- EXIT:
-  return retval;
+  return 0;
 }
 
-int main(int argc, char *argv[])
+/*
+ * Socket wraps around socket() to abstract the process 
+ * of creating a layer-2 (Ethernet Frame) socket.
+ *
+ * returns
+ *    socket file descriptor
+ */
+int
+Socket() {
+  int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
+
+  if(sockfd == -1) {
+    perror("socket");
+    exit errno;
+  }
+  
+  return sockfd;
+}
+
+/*
+ * Sends a packet given the payload, socket file descriptor, 
+ * and destination address.
+ *
+ * params
+ *    sockfd : socket file descriptor.
+ *    buf : a void pointer to payload buffer.
+ *    buflen : length of payload buffer.
+ *    dest_addr : target address structure.
+ *    daddr_len : length of target-address struct.
+ */
+void
+Sendto(int sockfd, void *buf, size_t buflen, 
+       struct sockaddr *dest_addr, size_t daddr_len) {
+  int retval = sendto(sockfd, buf, buflen, 0, dest_addr, daddr_len);
+
+  if(retval == -1) {
+   perror("sendto");
+   exit errno;
+  }
+}
+
+/*
+ * prepare_payload dynamically allocates a buffer for
+ * the frame payload, and sets the payload to 
+ * match the WOL protocol for the given MAC Address.
+ *
+ * params
+ *    macaddr : The MAC address structure of target.
+ *
+ * returns
+ *    A pointer to the buffer.
+ */
+void *
+prepare_payload(struct ether_addr *macaddr) {
+  void *payload_ptr = malloc(WOL_DATA_LEN);
+
+  if(payload_ptr == NULL) {
+    perror("malloc");
+    exit errno;
+  }
+
+  set_payload(payload_ptr, macaddr);
+  return payload_ptr;
+}
+
+/*
+ * set_payload writes the provided address into the provided
+ * buffer according to the Wake-On-LAN protocol.
+ *
+ * params
+ *    buf : pointer to payload buffer
+ *    addr : pointer to a struct ether_addr.
+ */
+void
+set_payload(void *buf, struct ether_addr *addr) {
+  int i;
+  void *ptr = buf;
+  memset(ptr, 0xFF, ETH_ALEN);
+  for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN)
+    memcpy(ptr, addr, ETH_ALEN);  
+}
+
+/*
+ * prepare_da configures the destination-addres structure
+ * sockaddr_ll accordingly for Ethernet frames.
+ *
+ * params
+ *    dest_addr : Pointer to destination address structure, sockaddr_ll
+ *    iface_index : integer number representing the network interface
+ */
+void
+prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
+  dest_addr->sll_family = AF_PACKET;
+  dest_addr->sll_protocol = htons(ETH_P_WOL);
+  dest_addr->sll_ifindex = iface_index;
+  dest_addr->sll_hatype = ARPHRD_ETHER;
+  dest_addr->sll_pkttype = PACKET_BROADCAST;
+  dest_addr->sll_halen = ETH_ALEN;
+  memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
+}
+
+/*
+int old_main(int argc, char *argv[])
 {
   int retval;
   unsigned char i;
-  int buflen = WOL_DATA_LEN;                        /* buffer length */
-  int sockfd = 0;                                   /* socket file descripter */
-  unsigned int iface_index;                         /* interface index number */
+  int buflen = WOL_DATA_LEN;
+  int sockfd = 0;
+  unsigned int iface_index;
 
 
-  void *buf = NULL, *payload;                       /* Buffer pointers */
-  struct sockaddr_ll dest_addr;                     /* ethernet frame dest address */
-  struct ether_addr *mac_addr, wol_addr, password;  /* mac address structure (6 bytes structs) */
-
-  /* disable the use of core memory dumps */
-  no_core_dumps();
-  
-  /* define command-line switches */
-  struct argp_option options[] = {
-    {"quiet"    , 'q', 0, 0, "No output"},
-    {"silent"   , 's', 0, OPTION_ALIAS, NULL},
-    {"password" , 'p', "PASSWORD", 0, "Submit the WOL password"},
-    {"interface", 'i', "NAME",     0, "Specify the net interface to use"},
-    { 0 }
-  };
-
-  struct arguments arguments = { 0 };
-
-  const char args_doc[] = "{mac address}";
-
-  const char doc[] = "Ethernet-frame based Wake-On-LAN client";
-
-  struct argp argp = { options, parser, args_doc, doc };
-  
-  argp_parse(&argp, argc, argv, 0, 0, &arguments);
+  void *buf = NULL, *payload;
+  struct sockaddr_ll dest_addr;
+  struct ether_addr *mac_addr, wol_addr, password;
 
   if(arguments.use_i)
     iface_index = if_nametoindex(arguments.ifacename);
@@ -130,7 +182,7 @@ int main(int argc, char *argv[])
     memcpy(&password, mac_addr, WOL_PASSWD_LEN);
   }
 
-  /* input validation and serialization */
+
   if((mac_addr = ether_aton(arguments.target)) == NULL) {
     fprintf(stderr, "error: target isn't a MAC-48 address\n");
     retval = EXIT_ERR;
@@ -139,25 +191,25 @@ int main(int argc, char *argv[])
 
   memcpy(&wol_addr, mac_addr, WOL_PASSWD_LEN);
 
-  /* create "packet" (ethernet frame) socket */
+
   if((sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL))) == -1) {
       perror("socket");
       retval = errno;
       goto exit;
   }
 
-  /* create buffer for payload */
+
   buf = (void *) malloc(buflen);
   payload = buf;
 
-  /* prepare frame payload */
+
   memset(payload, 0xFF, ETH_ALEN);
   for(i=0, payload += ETH_ALEN; i < 16; ++i, payload += ETH_ALEN)
     memcpy(payload, &wol_addr, ETH_ALEN);
   if(arguments.use_p)
     memcpy(payload, &password, WOL_PASSWD_LEN);
 
-  /* prepare socket destination struct */
+
   dest_addr.sll_family = AF_PACKET;
   dest_addr.sll_protocol = htons(ETH_P_WOL);
   dest_addr.sll_ifindex = iface_index;
@@ -166,7 +218,7 @@ int main(int argc, char *argv[])
   dest_addr.sll_halen = ETH_ALEN;
   memset(dest_addr.sll_addr, 0xFF, ETH_ALEN);
 
-  /* send "packet" (frame) */
+
   if(sendto(sockfd, buf, buflen, 0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_ll)) == -1) {
     perror("sendto");
     retval = errno;
@@ -178,9 +230,10 @@ int main(int argc, char *argv[])
 	   wol_addr.ether_addr_octet[0], wol_addr.ether_addr_octet[1], wol_addr.ether_addr_octet[2],
 	   wol_addr.ether_addr_octet[3], wol_addr.ether_addr_octet[4], wol_addr.ether_addr_octet[5]);
 
-  /* clean up */
+
  exit:
   if(buf != NULL) free(buf);
   if(sockfd != 0) close(sockfd);
   return EXIT_SUCC;
 }
+*/
