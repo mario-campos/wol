@@ -42,18 +42,18 @@ parser(int key, char *arg, struct argp_state *state) {
     /* parsed --{quiet|silent} | -{q|s} */
   case 'q':
   case 's':
-    arguments->use_q = TRUE;
+    arguments->use_q = true;
     break;
  
     /* parsed --interface | -i */
   case 'i':
-    arguments->use_i = TRUE;
+    arguments->use_i = true;
     arguments->ifacename = arg;
     break;
 
     /* parsed --password | -p */
   case 'p':
-    arguments->use_p = TRUE;
+    arguments->use_p = true;
     arguments->password = arg;
     break;
 

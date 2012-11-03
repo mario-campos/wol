@@ -27,7 +27,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define TRUE  1
-#define FALSE 0
+typedef unsigned int bool;
+
+#define true  1
+#define false 0
 
 #endif /* COMMON_H */

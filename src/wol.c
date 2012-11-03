@@ -225,7 +225,7 @@ int old_main(int argc, char *argv[])
     goto exit;
   }
 
-  if(arguments.use_q == FALSE) 
+  if(arguments.use_q == false) 
     printf("Magic Packet sent to %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
 	   wol_addr.ether_addr_octet[0], wol_addr.ether_addr_octet[1], wol_addr.ether_addr_octet[2],
 	   wol_addr.ether_addr_octet[3], wol_addr.ether_addr_octet[4], wol_addr.ether_addr_octet[5]);
