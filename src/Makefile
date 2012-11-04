@@ -25,3 +25,9 @@ clean:
 
 debug:
 	$(CC) $(DEBUG) $(CFLAGS) -o wol-dbg $(OBJS)
+
+install:
+	mv wol $(INSTALLDIR)/wol
+
+uninstall:
+	rm -f $(INSTALLDIR)/wol
