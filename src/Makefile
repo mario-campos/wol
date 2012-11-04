@@ -20,7 +20,7 @@ main.o: main.c wol.h usage.h
 	$(CC) $(CFLAGS) main.c
 
 clean:
-	rm -f *.o wol
+	rm -f *.o
 
 debug:
 	$(CC) $(DEBUG) $(CFLAGS) -o wol $(OBJS)
