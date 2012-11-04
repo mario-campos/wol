@@ -2,6 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O0 -c
 LFLAGS = -Wall
 DEBUG = -g
+INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
 wol: $(OBJS)
@@ -23,4 +24,4 @@ clean:
 	rm -f *.o
 
 debug:
-	$(CC) $(DEBUG) $(CFLAGS) -o wol $(OBJS)
+	$(CC) $(DEBUG) $(CFLAGS) -o wol-dbg $(OBJS)
