@@ -36,6 +36,16 @@
 #define ETH_P_WOL          0x0842      /* Ethernet Protocol ID for Wake-On-LAN */
 
 /*
+ * Password data type.
+ *
+ * A password is made up of 48 bits. For all intents and purposes,
+ * an ether_addr struct can work, but this way is more logical.
+ */
+struct password { 
+  char x[WOL_PASSWD_LEN]; 
+};
+
+/*
  * Send a "magic" (WOL) Ethernet frame to the given MAC address.
  *
  * params:
@@ -84,6 +94,35 @@ Sendto(int, void *, size_t, struct sockaddr *, size_t);
  */
 void *
 prepare_payload(struct ether_addr *);
+
+/*
+ * prepare_payload_wp functions exactly like prepare_payload
+ * except that it appends the password to the end of the
+ * payload.
+ *
+ * params
+ *    The MAC address structure of target.
+ *    A pointer to the password_t datatype.
+ *
+ * returns
+ *    A pointer to the buffer.
+ */
+void *
+prepare_payload_wp(struct ether_addr *, struct password *);
+
+
+/*
+ * pconvert returns a password (in the form of a password_t struct)
+ * given the c-string password. This function implements ether_aton.
+ *
+ * params
+ *    The password char string
+ *
+ * returns
+ *    A pointer to a populated password struct
+ */
+struct password *
+pconvert(const char *);
 
 /*
  * set_payload writes the provided address into the provided

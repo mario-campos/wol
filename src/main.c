@@ -55,16 +55,30 @@ int main(int argc, char **argv) {
   }
 
   /* validate MAC Address */
-  struct ether_addr *macaddr = ether_aton(args.target);
-  if(macaddr == NULL) {
+  struct ether_addr *addr = ether_aton(args.target);
+  struct ether_addr macaddr;
+  if(addr == NULL) {
     error(-1, errno, "invalid MAC address");
+  } else {
+    memcpy(&macaddr, addr, sizeof(*addr));
   }
 
+  /* configure destination */
   struct sockaddr_ll dest_addr;
-  int sockfd = Socket();
-  void *buf = prepare_payload(macaddr);
   prepare_da(&dest_addr, iface_index);
-  Sendto(sockfd, buf, WOL_DATA_LEN, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+
+  int sockfd = Socket();
+  void *buf;
+  size_t buf_len = WOL_DATA_LEN;
+
+  if(args.use_p) {
+    buf = prepare_payload_wp(&macaddr, pconvert(args.password));
+    buf_len += WOL_PASSWD_LEN;
+  } else {
+    buf = prepare_payload(&macaddr);
+  }
+
+  Sendto(sockfd, buf, buf_len, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
   
   /* clean up */
   free(buf);

@@ -71,8 +71,8 @@ Socket() {
   if(sockfd == -1) {
     perror("socket");
     exit errno;
-  }
-  
+  } 
+
   return sockfd;
 }
 
@@ -120,6 +120,40 @@ prepare_payload(struct ether_addr *macaddr) {
 
   set_payload(payload_ptr, macaddr);
   return payload_ptr;
+}
+
+/*
+ * prepare_payload_wp functions exactly like prepare_payload
+ * except that it appends the password to the end of the
+ * payload.
+ *
+ * params
+ *    The MAC address structure of target.
+ *    A pointer to the password_t datatype.
+ *
+ * returns
+ *    A pointer to the buffer.
+ */
+void *
+prepare_payload_wp(struct ether_addr *macaddr, struct password *passwd) {
+  void *payload_ptr = malloc(WOL_DATA_LEN + WOL_PASSWD_LEN);
+
+  if(payload_ptr == NULL) {
+    perror("malloc");
+    exit errno;
+  }
+
+  set_payload(payload_ptr, macaddr);
+  memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
+  return payload_ptr;
+}
+
+struct password *
+pconvert(const char *passwd_str) {
+  static struct password result;
+  struct ether_addr *hex_pass = ether_aton(passwd_str);
+  memcpy(&result, hex_pass, WOL_PASSWD_LEN);
+  return &result;
 }
 
 /*
