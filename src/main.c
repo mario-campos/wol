@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     if(iface_index == 0)
       error(-1, errno, "invalid interface");
   } else {
-    iface_index = 2;
+    iface_index = if_nametoindex("eth0");
   }
 
   /* validate MAC Address */
