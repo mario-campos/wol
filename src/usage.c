@@ -64,7 +64,8 @@ parser(int key, char *arg, struct argp_state *state) {
 
     /* <target mac addr> not provided */
   case ARGP_KEY_NO_ARGS:
-    return ARGP_KEY_NO_ARGS;
+    argp_usage(state);
+    return EINVAL;
 
   case ARGP_KEY_ERROR:
     return errno;
