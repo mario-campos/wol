@@ -59,6 +59,10 @@ parser(int key, char *arg, struct argp_state *state) {
 
     /* parsed <target mac addr> */
   case ARGP_KEY_ARG:
+    if(state->arg_num >= 1) {
+      argp_usage(state);
+      return EINVAL;
+    }
     arguments->target = arg;
     break;
 
