@@ -40,14 +40,18 @@
 
 int main(int argc, char **argv) {
 
-  struct arguments args = { 0 };
+  struct arguments *args = malloc(sizeof(struct arguments));
+  if(args == NULL) {
+    perror("malloc");
+    return errno;
+  }
 
-  parse_cmdline(&args, argv, argc);
+  parse_cmdline(args, argv, argc);
 
   /* validate interface input */
   int iface_index;
-  if(args.use_i) {
-    iface_index = if_nametoindex(args.ifacename);
+  if(args->use_i) {
+    iface_index = if_nametoindex(args->ifacename);
     if(iface_index == 0)
       error(-1, errno, "invalid interface");
   } else {
@@ -55,7 +59,7 @@ int main(int argc, char **argv) {
   }
 
   /* validate MAC Address */
-  struct ether_addr *addr = ether_aton(args.target);
+  struct ether_addr *addr = ether_aton(args->target);
   struct ether_addr macaddr;
   if(addr == NULL) {
     error(-1, errno, "invalid MAC address");
@@ -71,8 +75,8 @@ int main(int argc, char **argv) {
   void *buf;
   size_t buf_len = WOL_DATA_LEN;
 
-  if(args.use_p) {
-    buf = prepare_payload_wp(&macaddr, pconvert(args.password));
+  if(args->use_p) {
+    buf = prepare_payload_wp(&macaddr, pconvert(args->password));
     buf_len += WOL_PASSWD_LEN;
   } else {
     buf = prepare_payload(&macaddr);
@@ -82,6 +86,7 @@ int main(int argc, char **argv) {
   
   /* clean up */
   free(buf);
+  free(args);
   close(sockfd);
 
   return 0;
