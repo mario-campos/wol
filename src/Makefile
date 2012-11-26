@@ -1,10 +1,11 @@
 CC = gcc
+EXE = wol
 CFLAGS = -Wall -O0 -c -g
 LFLAGS = -Wall
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
-wol: $(OBJS)
+$(EXE): $(OBJS)
 	$(CC) $(LFLAGS) -o $@ $(OBJS)
 
 wol.o: wol.c wol.h common.h
@@ -25,7 +26,7 @@ clean:
 	rm -f $(OBJS)
 
 install:
-	mv wol $(INSTALLDIR)/wol
+	mv $(EXE) $(INSTALLDIR)/$(EXE)
 
 uninstall:
-	rm -f $(INSTALLDIR)/wol
+	rm -f $(INSTALLDIR)/$(EXE)
