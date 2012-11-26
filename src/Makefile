@@ -8,13 +8,13 @@ OBJS = wol.o usage.o main.o
 $(EXE): $(OBJS)
 	$(CC) $(LFLAGS) -o $@ $(OBJS)
 
-wol.o: wol.c wol.h common.h
+wol.o: wol.h common.h
 
-usage.o: usage.c usage.h common.h
+usage.o: usage.h common.h
 
-secure.o: secure.c secure.h
+secure.o: secure.h
 
-main.o: main.c wol.h usage.h common.h
+main.o: wol.h usage.h common.h
 
 .PHONY: clean
 
