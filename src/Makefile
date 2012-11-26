@@ -5,7 +5,7 @@ INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
 wol: $(OBJS)
-	$(CC) $(LFLAGS) -o wol $(OBJS)
+	$(CC) $(LFLAGS) -o $@ $(OBJS)
 
 wol.o: wol.c wol.h common.h
 	$(CC) $(CFLAGS) wol.c
