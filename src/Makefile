@@ -9,16 +9,12 @@ $(EXE): $(OBJS)
 	$(CC) $(LFLAGS) -o $@ $(OBJS)
 
 wol.o: wol.c wol.h common.h
-	$(CC) $(CFLAGS) $<
 
 usage.o: usage.c usage.h common.h
-	$(CC) $(CFLAGS) $<
 
 secure.o: secure.c secure.h
-	$(CC) $(CFLAGS) $<
 
 main.o: main.c wol.h usage.h common.h
-	$(CC) $(CFLAGS) $<
 
 .PHONY: clean
 
@@ -30,3 +26,6 @@ install:
 
 uninstall:
 	rm -f $(INSTALLDIR)/$(EXE)
+
+.c.o :
+	$(CC) $(CFLAGS) -o $@ $<
