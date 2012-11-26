@@ -23,7 +23,7 @@ main.o: main.c wol.h usage.h common.h
 .PHONY: clean
 
 clean:
-	rm -f $(OBJS)
+	-rm -f $(OBJS)
 
 install:
 	mv $(EXE) $(INSTALLDIR)/$(EXE)
