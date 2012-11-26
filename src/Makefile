@@ -19,6 +19,8 @@ secure.o: secure.c secure.h
 main.o: main.c wol.h usage.h common.h
 	$(CC) $(CFLAGS) main.c
 
+.PHONY: clean
+
 clean:
 	rm -f *.o
 
