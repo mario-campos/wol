@@ -22,7 +22,7 @@ main.o: main.c wol.h usage.h common.h
 .PHONY: clean
 
 clean:
-	rm -f *.o
+	rm -f $(OBJS)
 
 install:
 	mv wol $(INSTALLDIR)/wol
