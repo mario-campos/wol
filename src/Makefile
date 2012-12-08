@@ -1,7 +1,8 @@
 CC = gcc
 EXE = wol
-CFLAGS = -Wall -O0 -c -g
+CFLAGS = -Wall -O0 -c -g -I../include
 LFLAGS = -Wall
+VPATH = ../include
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
