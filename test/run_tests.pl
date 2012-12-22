@@ -1,9 +1,5 @@
 #!/usr/bin/perl
 
-BEGIN {
-    # compile tests. run `make tests`
-}
-
 use strict;
 use warnings;
 use TAP::Harness;

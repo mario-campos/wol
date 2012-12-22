@@ -3,6 +3,7 @@ EXE = wol
 CFLAGS = -Wall -O0 -c -g -I../include
 LFLAGS = -Wall
 VPATH = ../include
+PERL = /usr/bin/perl
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
@@ -27,6 +28,9 @@ install:
 
 uninstall:
 	rm -f $(INSTALLDIR)/$(EXE)
+
+test:
+	$(PERL) test/run_tests.pl
 
 .c.o :
 	$(CC) $(CFLAGS) -o $@ $<
