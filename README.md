@@ -15,6 +15,20 @@ sudo make install
 
 ### USAGE
 
+```bash
+Usage: wol [OPTION...] <mac address>
+Wake-On-LAN packet sender
+
+  -i, --interface=NAME       Specify the net interface to use
+  -p, --password=PASSWORD    Specify the WOL password
+  -q, -s, --quiet, --silent  No output
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
+
+Report bugs to <http://github.com/iamrekcah/wol>.
+```
+
 ### CAVEATS
 
 The Wake-On-LAN protocol requires the target computer to support WOL. This is typically a hardware requirement.
