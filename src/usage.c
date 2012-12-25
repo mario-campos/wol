@@ -32,7 +32,7 @@
 #define VERSION "1.0b"
 
 const char *argp_program_version = VERSION;
-const char *argp_program_bug_address = "<mario.andres.campos@gmail.com>";
+const char *argp_program_bug_address = "<http://github.com/iamrekcah/wol>";
 
 error_t
 parser(int key, char *arg, struct argp_state *state) {
