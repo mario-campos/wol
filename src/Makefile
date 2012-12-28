@@ -21,7 +21,7 @@ secure.o: secure.h
 
 main.o: wol.h usage.h common.h
 
-.PHONY: clean
+.PHONY: clean install uninstall test
 
 clean:
 	-rm -f $(OBJS)
