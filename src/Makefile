@@ -1,10 +1,10 @@
 CC = gcc
 EXE = wol
-CFLAGS = -Wall -O0 -c -g -I../include
 VPATH = ../include
 PERL = /usr/bin/perl
 LIBDIR = ../lib
 INCDIR = ../include
+CFLAGS = -Wall -O0 -c -g -I $(INCDIR)
 LDFLAGS = -L $(LIBDIR)
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
