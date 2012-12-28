@@ -1,4 +1,4 @@
-CC = gcc
+CC = /usr/bin/gcc
 EXE = wol
 VPATH = ../include
 PERL = /usr/bin/perl
