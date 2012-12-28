@@ -4,6 +4,7 @@ CFLAGS = -Wall -O0 -c -g -I../include
 VPATH = ../include
 PERL = /usr/bin/perl
 LIBDIR = ../lib
+INCDIR = ../include
 LDFLAGS = -L $(LIBDIR)
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
