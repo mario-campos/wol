@@ -1,7 +1,7 @@
 CC = gcc
 EXE = wol
 CFLAGS = -Wall -O0 -c -g -I../include
-LDFLAGS = -Wall
+LDFLAGS = -L ../lib
 VPATH = ../include
 PERL = /usr/bin/perl
 LIBDIR = ../lib
