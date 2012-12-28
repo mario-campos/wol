@@ -8,9 +8,11 @@ LIBDIR = ../lib
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
 
+# main rule - generates executable
 $(EXE): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
+# generate build objects
 wol.o: wol.h common.h
 
 usage.o: usage.h common.h
