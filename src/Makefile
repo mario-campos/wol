@@ -3,7 +3,7 @@ EXE = wol
 VPATH = ../include
 LIBDIR = ../lib
 INCDIR = ../include
-CFLAGS = -Wall -O0 -c -g -I $(INCDIR)
+CFLAGS = -Wall -O0 -g -I $(INCDIR)
 LDFLAGS = -L $(LIBDIR)
 INSTALLDIR = /usr/local/bin
 OBJS = wol.o usage.o main.o
@@ -36,4 +36,4 @@ test:
 	perl ../test/run_tests.pl
 
 .c.o :
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
