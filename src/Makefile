@@ -1,7 +1,6 @@
 CC = /usr/bin/gcc
 EXE = wol
 VPATH = ../include
-PERL = /usr/bin/perl
 LIBDIR = ../lib
 INCDIR = ../include
 CFLAGS = -Wall -O0 -c -g -I $(INCDIR)
@@ -34,7 +33,7 @@ uninstall:
 	rm -f $(INSTALLDIR)/$(EXE)
 
 test:
-	$(PERL) ../test/run_tests.pl
+	perl ../test/run_tests.pl
 
 .c.o :
 	$(CC) $(CFLAGS) -o $@ $<
