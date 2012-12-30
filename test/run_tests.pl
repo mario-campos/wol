@@ -7,8 +7,8 @@ use TAP::Harness;
 my $harness = TAP::Harness->new({
     verbosity => 1,
     color => 1,
-    exec => ['/bin/sh'],
+    exec => ['/bin/sh', '-c'],
     errors => 1
 });
 
-$harness->runtests(<t/*.t>);
+$harness->runtests(<../test/t/*.t>);
