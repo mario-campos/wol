@@ -33,6 +33,7 @@ uninstall:
 	rm -f $(INSTALLDIR)/$(EXE)
 
 test:
+	@ls ../test/t/*.c | xargs --verbose -I {} -n 1 $(CC) $(CFLAGS) -o {}.t {} ../lib/libtap.a
 	perl ../test/run_tests.pl
 
 .c.o :
