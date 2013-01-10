@@ -10,3 +10,4 @@
 wol
 a.out
 wol-dbg
+*.t
