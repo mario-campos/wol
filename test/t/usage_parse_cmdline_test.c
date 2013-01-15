@@ -19,6 +19,15 @@ int test_option_i_succeeds(void)
     &&   strcmp(argv[2], args.ifacename) == 0;
 }
 
+/*
+ * Tests the long option --interface.
+ *
+ * This test succeeds if
+ *  1. the parse_cmdline() function succeeds (returns 0)
+ *  2. the arguments structure indicates custom interface (use_i = 1)
+ *  3. the interface string in the arguments structure matches
+ *     the interface name passed to the test
+ */
 int test_option_interface_succeeds(void)
 {
   struct arguments args = {0};
