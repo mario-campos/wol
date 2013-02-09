@@ -35,6 +35,6 @@ The Wake-On-LAN protocol requires the target computer to support WOL. This is ty
 
 ### LICENSE
 
-_wol_ is licensed with [GNU GPL 2.0][1]
+_wol_ is licensed with [GNU GPL 3.0][1]
 
-[1]:http://www.gnu.org/gpl/2.0.txt
+[1]:http://www.gnu.org/licenses/gpl-3.0.txt
