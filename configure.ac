@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([wol], [0.7])
 AC_PREREQ([2.67])
-AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -12,7 +12,10 @@ AC_PROG_INSTALL
 
 # Enable "automake" to simplify creating makefiles
 AM_INIT_AUTOMAKE([1.11 -Wall -Werror])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
