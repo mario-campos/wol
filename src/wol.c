@@ -42,22 +42,6 @@
 
 #include "wol.h"
 
-
-/*
- * Send a "magic" (WOL) Ethernet frame to the given MAC address.
- *
- * params:
- *   mac_addr : A pointer to the target's MAC address struct.
- *
- * returns:
- *   0 : on success.
- */
-int
-send_magicpkt(struct ether_addr *macaddr) {
-
-  return 0;
-}
-
 /*
  * Socket wraps around socket() to abstract the process 
  * of creating a layer-2 (Ethernet Frame) socket.
