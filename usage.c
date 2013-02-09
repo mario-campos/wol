@@ -23,6 +23,8 @@
  * This file implements command-line switch parsing and usage functionality.
  */
 
+#include "config.h"
+
 #include <argp.h>
 #include <errno.h>
 

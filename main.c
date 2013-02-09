@@ -23,6 +23,8 @@
  * -- via the MAC address -- computer on the Ethernet LAN.
  */
 
+#include "config.h"
+
 #include <linux/if_packet.h>
 #include <netinet/ether.h>
 #include <net/ethernet.h>

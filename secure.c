@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "secure.h"
 #include <sys/time.h>
 #include <sys/resource.h>
