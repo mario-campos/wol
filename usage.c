@@ -31,8 +31,6 @@
 #include "usage.h"
 #include "common.h"
 
-#define VERSION "1.0b"
-
 const char *argp_program_version = VERSION;
 const char *argp_program_bug_address = "<http://github.com/iamrekcah/wol>";
 
