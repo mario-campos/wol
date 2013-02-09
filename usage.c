@@ -27,9 +27,9 @@
 
 #include <argp.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include "usage.h"
-#include "common.h"
 
 const char *argp_program_version = VERSION;
 const char *argp_program_bug_address = "<http://github.com/iamrekcah/wol>";

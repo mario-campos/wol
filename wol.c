@@ -41,7 +41,6 @@
 #include <netinet/ether.h>                     /* ether_aton() */
 
 #include "wol.h"
-#include "common.h"
 
 
 /*
