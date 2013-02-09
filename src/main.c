@@ -86,8 +86,10 @@ int main(int argc, char **argv) {
   Sendto(sockfd, buf, buf_len, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
   
   /* clean up */
-  free(buf);
-  free(args);
+  if(buf != NULL)
+    free(buf);
+  if(args != NULL)
+    free(args);
   close(sockfd);
 
   return 0;
