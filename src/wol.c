@@ -52,12 +52,10 @@
 int
 Socket() {
   int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
-
   if(sockfd == -1) {
     perror("socket");
     exit errno;
-  } 
-
+  }
   return sockfd;
 }
 
@@ -76,7 +74,6 @@ void
 Sendto(int sockfd, void *buf, size_t buflen, 
        struct sockaddr *dest_addr, size_t daddr_len) {
   int retval = sendto(sockfd, buf, buflen, 0, dest_addr, daddr_len);
-
   if(retval == -1) {
    perror("sendto");
    exit errno;
@@ -97,12 +94,10 @@ Sendto(int sockfd, void *buf, size_t buflen,
 void *
 prepare_payload(struct ether_addr *macaddr) {
   void *payload_ptr = malloc(WOL_DATA_LEN);
-
   if(payload_ptr == NULL) {
     perror("malloc");
     exit errno;
   }
-
   set_payload(payload_ptr, macaddr);
   return payload_ptr;
 }
@@ -122,17 +117,25 @@ prepare_payload(struct ether_addr *macaddr) {
 void *
 prepare_payload_wp(struct ether_addr *macaddr, struct password *passwd) {
   void *payload_ptr = malloc(WOL_DATA_LEN + WOL_PASSWD_LEN);
-
   if(payload_ptr == NULL) {
     perror("malloc");
     exit errno;
   }
-
   set_payload(payload_ptr, macaddr);
   memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
   return payload_ptr;
 }
 
+/*
+ * pconvert returns a password (in the form of a password_t struct)
+ * given the c-string password. This function implements ether_aton.
+ *
+ * params
+ *    The password char string
+ *
+ * returns
+ *    A pointer to a populated password struct
+ */
 struct password *
 pconvert(const char *passwd_str) {
   static struct password result;
@@ -154,8 +157,9 @@ set_payload(void *buf, struct ether_addr *addr) {
   int i;
   void *ptr = buf;
   memset(ptr, 0xFF, ETH_ALEN);
-  for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN)
-    memcpy(ptr, addr, ETH_ALEN);  
+  for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
+    memcpy(ptr, addr, ETH_ALEN);
+  }
 }
 
 /*
@@ -168,12 +172,12 @@ set_payload(void *buf, struct ether_addr *addr) {
  */
 void
 prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
-  dest_addr->sll_family = AF_PACKET;
+  dest_addr->sll_family   = AF_PACKET;
   dest_addr->sll_protocol = htons(ETH_P_WOL);
-  dest_addr->sll_ifindex = iface_index;
-  dest_addr->sll_hatype = ARPHRD_ETHER;
-  dest_addr->sll_pkttype = PACKET_BROADCAST;
-  dest_addr->sll_halen = ETH_ALEN;
+  dest_addr->sll_ifindex  = iface_index;
+  dest_addr->sll_hatype   = ARPHRD_ETHER;
+  dest_addr->sll_pkttype  = PACKET_BROADCAST;
+  dest_addr->sll_halen    = ETH_ALEN;
   memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
 }
 
