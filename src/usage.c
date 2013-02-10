@@ -104,10 +104,6 @@ parse_cmdline(struct arguments *args, char **argv, size_t argc) {
 
   const char args_doc[] = "<mac address>";
   const char doc[] = "Wake-On-LAN packet sender";
-
   struct argp argp = { options, parser, args_doc, doc };
-
-  int retval = argp_parse(&argp, (int)argc, argv, 0, 0, args);
-
-  return retval;
+  return argp_parse(&argp, (int)argc, argv, 0, 0, args);
 }
