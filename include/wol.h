@@ -65,33 +65,17 @@ void
 Sendto(int, void *, size_t, struct sockaddr *, size_t);
 
 /*
- * prepare_payload dynamically allocates a buffer for
- * the frame payload, and sets the payload to 
- * match the WOL protocol for the given MAC Address.
+ * set_payload_wp writes the provided address into the provided
+ * buffer according to the Wake-On-LAN protocol. Then, writes the
+ * password at the end of the payload, as per the WOL protocol.
  *
  * params
- *    The MAC address structure of target.
- *
- * returns
- *    A pointer to the buffer.
+ *    pointer to buffer (payload)
+ *    pointer to a struct ether_addr
+ *    pointer to password structure
  */
-void *
-prepare_payload(struct ether_addr *);
-
-/*
- * prepare_payload_wp functions exactly like prepare_payload
- * except that it appends the password to the end of the
- * payload.
- *
- * params
- *    The MAC address structure of target.
- *    A pointer to the password_t datatype.
- *
- * returns
- *    A pointer to the buffer.
- */
-void *
-prepare_payload_wp(struct ether_addr *, struct password *);
+void
+set_payload_wp(void *, struct ether_addr *, struct password *);
 
 
 /*

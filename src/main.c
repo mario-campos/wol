@@ -69,13 +69,20 @@ int main(int argc, char **argv) {
 
   int sockfd = Socket();
   void *buf;
-  size_t buf_len = WOL_DATA_LEN;
+  size_t buf_len;
 
+  // set frame payload with password
   if(args->use_p) {
-    buf = prepare_payload_wp(&macaddr, pconvert(args->password));
-    buf_len += WOL_PASSWD_LEN;
-  } else {
-    buf = prepare_payload(&macaddr);
+    buf = Malloc(WOL_DATA_LEN + WOL_PASSWD_LEN);
+    buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
+    set_payload_wp(buf, &macaddr, pconvert(args->password));
+  } 
+
+  // set frame payload without password
+  else {
+    buf = Malloc(WOL_DATA_LEN);
+    buf_len = WOL_DATA_LEN;
+    set_payload(buf, &macaddr);
   }
 
   Sendto(sockfd, buf, buf_len, (struct sockaddr *)&dest_addr, sizeof(dest_addr));

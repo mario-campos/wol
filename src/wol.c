@@ -74,49 +74,19 @@ Sendto(int sockfd, void *buf, size_t buflen,
 }
 
 /*
- * prepare_payload dynamically allocates a buffer for
- * the frame payload, and sets the payload to 
- * match the WOL protocol for the given MAC Address.
+ * set_payload_wp writes the provided address into the provided
+ * buffer according to the Wake-On-LAN protocol. Then, writes the
+ * password at the end of the payload, as per the WOL protocol.
  *
  * params
- *    macaddr : The MAC address structure of target.
- *
- * returns
- *    A pointer to the buffer.
+ *    pointer to buffer (payload)
+ *    pointer to a struct ether_addr
+ *    pointer to password structure
  */
-void *
-prepare_payload(struct ether_addr *macaddr) {
-  void *payload_ptr = malloc(WOL_DATA_LEN);
-  if(payload_ptr == NULL) {
-    perror("malloc");
-    exit errno;
-  }
-  set_payload(payload_ptr, macaddr);
-  return payload_ptr;
-}
-
-/*
- * prepare_payload_wp functions exactly like prepare_payload
- * except that it appends the password to the end of the
- * payload.
- *
- * params
- *    The MAC address structure of target.
- *    A pointer to the password_t datatype.
- *
- * returns
- *    A pointer to the buffer.
- */
-void *
-prepare_payload_wp(struct ether_addr *macaddr, struct password *passwd) {
-  void *payload_ptr = malloc(WOL_DATA_LEN + WOL_PASSWD_LEN);
-  if(payload_ptr == NULL) {
-    perror("malloc");
-    exit errno;
-  }
+void
+set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *passwd) {
   set_payload(payload_ptr, macaddr);
   memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
-  return payload_ptr;
 }
 
 /*
