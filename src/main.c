@@ -27,7 +27,6 @@
 
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
-#include <string.h>                            /* memcpy() */
 #include <net/if.h>                            /* if_nametoindex() */
 #include <stdlib.h>                            /* malloc(), free(), exit() */
 #include <unistd.h>                            /* close() */
@@ -60,7 +59,7 @@ int main(int argc, char **argv) {
   if(addr == NULL) {
     error(-1, errno, "invalid MAC address");
   } else {
-    memcpy(&macaddr, addr, sizeof(struct ether_addr));
+    macaddr = *addr;
   }
 
   /* configure destination */
