@@ -29,7 +29,7 @@
 #include <netinet/ether.h>                     /* ether_aton() */
 #include <string.h>                            /* memcpy() */
 #include <net/if.h>                            /* if_nametoindex() */
-#include <stdlib.h>                            /* malloc() */
+#include <stdlib.h>                            /* malloc(), free(), exit() */
 #include <unistd.h>                            /* close() */
 #include <stdio.h>                             /* perror(), puts() */
 #include <errno.h>                             /* errno */
