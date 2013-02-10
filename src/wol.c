@@ -173,3 +173,22 @@ prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
   dest_addr->sll_halen    = ETH_ALEN;
   memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
 }
+
+/*
+ * Malloc is a wrapper around malloc() with error checking
+ *
+ * params
+ *    size of memory to allocate
+ *
+ * returns
+ *    address of allocated space
+ */
+void *
+Malloc(size_t num_bytes) {
+  void *ptr = malloc(num_bytes);
+  if(ptr == NULL) {
+    perror("malloc");
+    exit errno;
+  }
+  return ptr;
+}
