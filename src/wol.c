@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <stdlib.h>                            /* malloc(), free(), exit() */
+#include <error.h>                             /* error() */
 #include <errno.h>                             /* errno */
 #include <stdio.h>                             /* perror(), puts() */
 #include <string.h>                            /* memcpy() */
@@ -66,6 +67,9 @@ Socket() {
 void
 Sendto(int sockfd, void *buf, size_t buflen, 
        struct sockaddr_ll *dest_addr, size_t daddr_len) {
+  if(buf == NULL || dest_addr == NULL) {
+    error(1, 0, "Unable to send due to NULL reference.");
+  }
   int retval = sendto(sockfd, buf, buflen, 0, (struct sockaddr *)dest_addr, daddr_len);
   if(retval == -1) {
    perror("sendto");
@@ -85,6 +89,9 @@ Sendto(int sockfd, void *buf, size_t buflen,
  */
 void
 set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *passwd) {
+  if(payload_ptr == NULL || macaddr == NULL || passwd == NULL) {
+    error(1, 0, "Unable to set payload due to NULL reference.");
+  }
   set_payload(payload_ptr, macaddr);
   memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
 }
@@ -101,6 +108,9 @@ set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *p
  */
 struct password *
 pconvert(const char *passwd_str) {
+  if(passwd_str == NULL) {
+    error(1, 0, "Unable to convert password due to NULL reference.");
+  }
   static struct password result;
   struct ether_addr *hex_pass = ether_aton(passwd_str);
   memcpy(&result, hex_pass, WOL_PASSWD_LEN);
@@ -117,6 +127,10 @@ pconvert(const char *passwd_str) {
  */
 void
 set_payload(void *buf, struct ether_addr *addr) {
+  if(buf == NULL || addr == NULL) {
+    error(1, 0, "Unable to set payload due to NULL reference.");
+  }
+
   int i;
   void *ptr = buf;
   memset(ptr, 0xFF, ETH_ALEN);
@@ -135,6 +149,10 @@ set_payload(void *buf, struct ether_addr *addr) {
  */
 void
 prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
+  if(dest_addr == NULL) {
+    error(1, 0, "Unable to prepare destination due to NULL reference.");
+  }
+
   dest_addr->sll_family   = AF_PACKET;
   dest_addr->sll_protocol = htons(ETH_P_WOL);
   dest_addr->sll_ifindex  = iface_index;
