@@ -27,7 +27,6 @@
 
 #include <linux/if_packet.h>
 #include <netinet/ether.h>
-#include <net/ethernet.h>
 #include <string.h>
 #include <net/if.h>
 #include <stdlib.h>

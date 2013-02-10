@@ -27,17 +27,10 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <argp.h>
 #include <stdio.h>                             /* perror(), puts() */
 #include <string.h>                            /* memcpy() */
-#include <unistd.h>                            /* close() */
 #include <arpa/inet.h>                         /* htons() */
-#include <sys/socket.h>                        /* socket() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
-#include <linux/if_ether.h>                    /* ETH_ALEN */
-#include <net/ethernet.h>                      /* struct ether_addr */
-#include <net/if.h>                            /* if_nametoindex() */
 #include <netinet/ether.h>                     /* ether_aton() */
 
 #include "wol.h"

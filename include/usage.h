@@ -26,8 +26,6 @@
 #ifndef USAGE_H
 #define USAGE_H
 
-#include <stdlib.h>                            /* size_t */
-
 /*
  * A structure for containing the results of parsing the argument vector.
  */

@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <argp.h>
-#include <errno.h>
 #include <stdbool.h>
 
 #include "usage.h"
