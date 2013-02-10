@@ -25,7 +25,7 @@
 
 #include "config.h"
 
-#include <stdlib.h>                            /* malloc(), free(), exit() */
+#include <stdlib.h>                            /* exit() */
 #include <error.h>                             /* error() */
 #include <errno.h>                             /* errno */
 #include <stdio.h>                             /* perror(), puts() */
@@ -160,23 +160,4 @@ prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
   dest_addr->sll_pkttype  = PACKET_BROADCAST;
   dest_addr->sll_halen    = ETH_ALEN;
   memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
-}
-
-/*
- * Malloc is a wrapper around malloc() with error checking
- *
- * params
- *    size of memory to allocate
- *
- * returns
- *    address of allocated space
- */
-void *
-Malloc(unsigned int num_bytes) {
-  void *ptr = malloc(num_bytes);
-  if(ptr == NULL) {
-    perror("malloc");
-    exit errno;
-  }
-  return ptr;
 }

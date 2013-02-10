@@ -113,16 +113,4 @@ set_payload(void *, struct ether_addr *);
 void
 prepare_da(struct sockaddr_ll *, int);
 
-/*
- * Malloc is a wrapper around malloc() with error checking
- *
- * params
- *    size of memory to allocate
- *
- * returns
- *    address of allocated space
- */
-void *
-Malloc(unsigned int);
-
 #endif /* WOL_H */
