@@ -88,8 +88,8 @@ int main(int argc, char **argv) {
   Sendto(sockfd, buf, buf_len, &dest_addr, sizeof(dest_addr));
   
   /* clean up */
-  free(buf);
-  free(args);
+  free(buf); buf = NULL;
+  free(args); args = NULL;
   close(sockfd);
 
   return 0;
