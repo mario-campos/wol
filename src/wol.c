@@ -65,8 +65,8 @@ Socket() {
  */
 void
 Sendto(int sockfd, void *buf, size_t buflen, 
-       struct sockaddr *dest_addr, size_t daddr_len) {
-  int retval = sendto(sockfd, buf, buflen, 0, dest_addr, daddr_len);
+       struct sockaddr_ll *dest_addr, size_t daddr_len) {
+  int retval = sendto(sockfd, buf, buflen, 0, (struct sockaddr *)dest_addr, daddr_len);
   if(retval == -1) {
    perror("sendto");
    exit errno;

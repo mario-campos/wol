@@ -62,7 +62,7 @@ Socket();
  *    daddr_len : length of target-address struct.
  */
 void
-Sendto(int, void *, size_t, struct sockaddr *, size_t);
+Sendto(int, void *, size_t, struct sockaddr_ll *, size_t);
 
 /*
  * set_payload_wp writes the provided address into the provided

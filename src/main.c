@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     set_payload(buf, &macaddr);
   }
 
-  Sendto(sockfd, buf, buf_len, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+  Sendto(sockfd, buf, buf_len, &dest_addr, sizeof(dest_addr));
   
   /* clean up */
   if(buf != NULL)
