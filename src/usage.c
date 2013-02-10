@@ -109,5 +109,5 @@ parse_cmdline(struct arguments *args, char **argv, size_t argc) {
 
   int retval = argp_parse(&argp, (int)argc, argv, 0, 0, args);
 
-  return retval == 0 ? 0 : retval;
+  return retval;
 }
