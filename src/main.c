@@ -38,13 +38,28 @@
 #include "wol.h"
 #include "usage.h"
 
+/*
+ * Malloc is a wrapper around malloc() with error checking
+ *
+ * params
+ *    size of memory to allocate
+ *
+ * returns
+ *    address of allocated space
+ */
+void *
+Malloc(size_t num_bytes) {
+  void *ptr = malloc(num_bytes);
+  if(ptr == NULL) {
+    perror("malloc");
+    exit errno;
+  }
+  return ptr;
+}
+
 int main(int argc, char **argv) {
 
-  struct arguments *args = malloc(sizeof(struct arguments));
-  if(args == NULL) {
-    perror("malloc");
-    return errno;
-  }
+  struct arguments *args = Malloc(sizeof(struct arguments));
 
   parse_cmdline(args, argv, argc);
 
