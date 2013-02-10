@@ -31,7 +31,7 @@
 #include "usage.h"
 
 const char *argp_program_version = VERSION;
-const char *argp_program_bug_address = "<http://github.com/iamrekcah/wol>";
+const char *argp_program_bug_address = "<https://github.com/iamrekcah/wol>";
 
 error_t
 parser(int key, char *arg, struct argp_state *state) {
