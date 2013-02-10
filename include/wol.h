@@ -123,6 +123,6 @@ prepare_da(struct sockaddr_ll *, int);
  *    address of allocated space
  */
 void *
-Malloc(size_t);
+Malloc(unsigned int);
 
 #endif /* WOL_H */

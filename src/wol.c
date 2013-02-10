@@ -154,7 +154,7 @@ prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
  *    address of allocated space
  */
 void *
-Malloc(size_t num_bytes) {
+Malloc(unsigned int num_bytes) {
   void *ptr = malloc(num_bytes);
   if(ptr == NULL) {
     perror("malloc");
