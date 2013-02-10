@@ -25,8 +25,8 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <stdlib.h>                            /* exit() */
+#include <errno.h>                             /* errno */
 #include <stdio.h>                             /* perror(), puts() */
 #include <string.h>                            /* memcpy() */
 #include <arpa/inet.h>                         /* htons() */

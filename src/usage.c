@@ -25,8 +25,8 @@
 
 #include "config.h"
 
-#include <argp.h>
-#include <stdbool.h>
+#include <argp.h>                              /* ArgP */
+#include <stdbool.h>                           /* true, false, bool */
 
 #include "usage.h"
 

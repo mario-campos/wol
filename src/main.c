@@ -25,15 +25,15 @@
 
 #include "config.h"
 
-#include <linux/if_packet.h>
-#include <netinet/ether.h>
-#include <string.h>
-#include <net/if.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <error.h>
+#include <linux/if_packet.h>                   /* sockaddr_ll */
+#include <netinet/ether.h>                     /* ether_aton() */
+#include <string.h>                            /* memcpy() */
+#include <net/if.h>                            /* if_nametoindex() */
+#include <stdlib.h>                            /* malloc() */
+#include <unistd.h>                            /* close() */
+#include <stdio.h>                             /* perror(), puts() */
+#include <errno.h>                             /* errno */
+#include <error.h>                             /* error() */
 
 #include "wol.h"
 #include "usage.h"
