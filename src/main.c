@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
   if(addr == NULL) {
     error(-1, errno, "invalid MAC address");
   } else {
-    memcpy(&macaddr, addr, sizeof(*addr));
+    memcpy(&macaddr, addr, sizeof(struct ether_addr));
   }
 
   /* configure destination */
