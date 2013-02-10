@@ -93,6 +93,11 @@ parser(int key, char *arg, struct argp_state *state) {
 int
 parse_cmdline(struct arguments *args, char **argv, size_t argc) {
 
+  /* set defaults */
+  args->use_p = false;
+  args->use_i = false;
+  args->use_q = false;
+
   /* expected switches */
   struct argp_option options[] = {
     {"quiet"    , 'q', 0,            0, "No output"},
