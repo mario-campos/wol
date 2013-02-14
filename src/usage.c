@@ -26,8 +26,6 @@
 #include "config.h"
 
 #include <argp.h>                              /* ArgP */
-#include <stdbool.h>                           /* true, false, bool */
-
 #include "usage.h"
 
 const char *argp_program_version = VERSION;

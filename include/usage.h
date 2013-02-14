@@ -26,13 +26,15 @@
 #ifndef USAGE_H
 #define USAGE_H
 
+#include <stdbool.h>                           /* true, false, bool */
+
 /*
  * A structure for containing the results of parsing the argument vector.
  */
 struct arguments {
-  int use_q;
-  int use_p;
-  int use_i;
+  bool use_q;
+  bool use_p;
+  bool use_i;
   const char *ifacename;
   const char *password;
   const char *target;
