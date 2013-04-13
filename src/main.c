@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   // set frame payload with password
   if(args.use_p) {
     buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
-    set_payload_wp(&buf, &macaddr, pconvert(args.password));
+    set_payload_wp(&buf, &macaddr, pconvert((const char *)args.password));
   }
 
   // set frame payload without password
@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
 
   /* wipe password buffers */
   memset((void*)&buf, 0, buf_len);
+  memset((void*)args.password, 0, strlen((const char *)args.password));
 
   return 0;
 }

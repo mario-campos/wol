@@ -36,7 +36,7 @@ struct arguments {
   bool use_p;
   bool use_i;
   const char *ifacename;
-  const char *password;
+  volatile const char *password;
   const char *target;
 };
 
