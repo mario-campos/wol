@@ -25,6 +25,7 @@
 
 #include "config.h"
 
+#include <string.h>                            /* memset() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
 #include <net/if.h>                            /* if_nametoindex() */
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
   prepare_da(&dest_addr, iface_index);
 
   int sockfd = Socket();
-  char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
+  volatile char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
   size_t buf_len;
 
   // set frame payload with password
@@ -86,6 +87,9 @@ int main(int argc, char **argv) {
 
   /* clean up */
   close(sockfd);
+
+  /* wipe password buffers */
+  memset((void*)&buf, 0, buf_len);
 
   return 0;
 }
