@@ -35,8 +35,11 @@
 
 #include "wol.h"
 #include "usage.h"
+#include "secure.h"
 
 int main(int argc, char **argv) {
+  no_core_dumps();
+
   struct arguments args;
   parse_cmdline(&args, argv, argc);
 
@@ -71,7 +74,7 @@ int main(int argc, char **argv) {
   if(args.use_p) {
     buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
     set_payload_wp(&buf, &macaddr, pconvert(args.password));
-  } 
+  }
 
   // set frame payload without password
   else {
@@ -80,7 +83,7 @@ int main(int argc, char **argv) {
   }
 
   Sendto(sockfd, &buf, buf_len, &dest_addr, sizeof(dest_addr));
-  
+
   /* clean up */
   close(sockfd);
 
