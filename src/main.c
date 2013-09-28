@@ -25,6 +25,7 @@
 
 #include "config.h"
 
+#include <sysexits.h>                          /* EX_DATAERR, EX_NOINPUT */
 #include <string.h>                            /* memset() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
   if(args.use_i) {
     iface_index = if_nametoindex(args.ifacename);
     if(iface_index == 0)
-      error(-1, errno, "invalid interface");
+      error(EX_NOINPUT, errno, "invalid interface");
   } else {
     iface_index = if_nametoindex("eth0");
   }
@@ -58,7 +59,7 @@ int main(int argc, char **argv) {
   struct ether_addr *addr = ether_aton(args.target);
   struct ether_addr macaddr;
   if(addr == NULL) {
-    error(-1, errno, "invalid MAC address");
+    error(EX_DATAERR, errno, "invalid MAC address");
   } else {
     macaddr = *addr;
   }
@@ -92,5 +93,5 @@ int main(int argc, char **argv) {
   memset((void*)&buf, 0, buf_len);
   memset((void*)args.password, 0, strlen((const char *)args.password));
 
-  return 0;
+  return EX_OK;
 }
