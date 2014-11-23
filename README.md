@@ -10,6 +10,7 @@ _wol_ is a command-line tool for implementing the Wake-On-LAN protocol over a lo
 ### INSTALL
 
 ```bash
+./autogen.sh
 ./configure
 make
 sudo make install
