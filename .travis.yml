@@ -2,4 +2,4 @@ language: c
 compiler:
   - gcc
   - clang
-script: ./configure && make
+script: cd iamrekcah/wol && ./configure && make
