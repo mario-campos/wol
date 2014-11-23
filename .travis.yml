@@ -2,4 +2,4 @@ language: c
 compiler:
   - gcc
   - clang
-script: cd iamrekcah/wol && ./configure && make
+script: cd iamrekcah/wol; autoconf && ./configure && make
