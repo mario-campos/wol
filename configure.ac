@@ -11,7 +11,6 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 # Enable "automake" to simplify creating makefiles
-AM_INIT_AUTOMAKE([1.11 -Wall -Werror])
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
