@@ -1,4 +1,5 @@
-# wol
+# wol ![Travis-CI build status](https://travis-ci.org/iamrekcah/wol.svg?branch=master)
+
 
 A Wake-On-LAN utility
 
