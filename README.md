@@ -1,4 +1,4 @@
-# wol [![Build Status](https://travis-ci.org/iamrekcah/wol.svg?branch=master)](https://travis-ci.org/iamrekcah/wol)
+# wol [![Build Status](https://travis-ci.org/mario-campos/wol.svg?branch=master)](https://travis-ci.org/mario-campos/wol)
 
 
 A Wake-On-LAN utility
