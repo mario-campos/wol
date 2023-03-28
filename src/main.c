@@ -91,7 +91,8 @@ int main(int argc, char **argv) {
 
   /* wipe password buffers */
   memset((void*)&buf, 0, buf_len);
-  memset((void*)args.password, 0, strlen((const char *)args.password));
-
+  if(args.use_p) {
+    memset((void*)args.password, 0, strlen((const char *)args.password));
+  }
   return EX_OK;
 }
