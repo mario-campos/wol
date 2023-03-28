@@ -1,4 +1,4 @@
-# wol [![Build Status](https://travis-ci.org/mario-campos/wol.svg?branch=master)](https://travis-ci.org/mario-campos/wol)
+# wol [![CodeQL](https://github.com/mario-campos/wol/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/mario-campos/wol/actions/workflows/codeql-analysis.yml)
 
 
 A Wake-On-LAN utility
