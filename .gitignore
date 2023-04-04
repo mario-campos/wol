@@ -32,7 +32,6 @@ Makefile
 /config.h
 /config/
 /config.h.in
-/configure
 /build*/
 m4
 .deps
