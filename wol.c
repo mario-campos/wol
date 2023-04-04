@@ -192,25 +192,6 @@ Sendto(int sockfd, void *buf, size_t buflen,
 }
 
 /*
- * set_payload_wp writes the provided address into the provided
- * buffer according to the Wake-On-LAN protocol. Then, writes the
- * password at the end of the payload, as per the WOL protocol.
- *
- * params
- *    pointer to buffer (payload)
- *    pointer to a struct ether_addr
- *    pointer to password structure
- */
-void
-set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *passwd) {
-    if(payload_ptr == NULL || macaddr == NULL || passwd == NULL) {
-	error(1, 0, "Unable to set payload due to NULL reference.");
-    }
-    set_payload(payload_ptr, macaddr);
-    memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
-}
-
-/*
  * pconvert returns a password (in the form of a password_t struct)
  * given the c-string password. This function implements ether_aton.
  *
@@ -251,6 +232,25 @@ set_payload(void *buf, struct ether_addr *addr) {
     for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
 	memcpy(ptr, addr, ETH_ALEN);
     }
+}
+
+/*
+ * set_payload_wp writes the provided address into the provided
+ * buffer according to the Wake-On-LAN protocol. Then, writes the
+ * password at the end of the payload, as per the WOL protocol.
+ *
+ * params
+ *    pointer to buffer (payload)
+ *    pointer to a struct ether_addr
+ *    pointer to password structure
+ */
+void
+set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *passwd) {
+    if(payload_ptr == NULL || macaddr == NULL || passwd == NULL) {
+	error(1, 0, "Unable to set payload due to NULL reference.");
+    }
+    set_payload(payload_ptr, macaddr);
+    memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
 }
 
 /*
