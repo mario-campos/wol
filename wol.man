@@ -1,5 +1,5 @@
 .\" Manpage for wol
-.\" Contact iamrekcah @ github.com/iamrekcah for corrections.
+.\" Contact https://github.com/mario-campos for corrections.
 .TH man 1 "18 June 2013" "0.8" "wol man page"
 .SH NAME
 wol - Wake-On-LAN client
@@ -34,4 +34,4 @@ wol is a command-line client for crafting and sending custom WOL Ethernet frames
 .SH BUGS
 No known bugs.
 .SH AUTHOR
-iamrekcah
+mario-campos

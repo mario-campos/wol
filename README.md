@@ -29,7 +29,7 @@ Wake-On-LAN packet sender
       --usage                Give a short usage message
   -V, --version              Print program version
 
-Report bugs to <http://github.com/iamrekcah/wol>.
+Report bugs to <https://github.com/mario-campos/wol>.
 ```
 
 ### CAVEATS

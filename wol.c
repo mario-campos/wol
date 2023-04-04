@@ -1,5 +1,6 @@
 /*
- * Copyright 2012 iamrekcah
+ * Copyright (c) 2012 iamrekcah
+ * Copyright (c) 2023 Mario Campos
  *
  * This file is part of wol.
  *
@@ -67,7 +68,7 @@ struct arguments {
 };
 
 const char *argp_program_version = VERSION;
-const char *argp_program_bug_address = "<https://github.com/iamrekcah/wol>";
+const char *argp_program_bug_address = "<https://github.com/mario-campos/wol>";
 
 error_t
 parser(int key, char *arg, struct argp_state *state) {
