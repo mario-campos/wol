@@ -35,7 +35,6 @@
 #include <stdio.h>                             /* perror(), puts() */
 #include <errno.h>                             /* errno */
 #include <error.h>                             /* error() */
-#include <sys/resource.h>                      /* setrlimit() */
 #include <stdlib.h>                            /* exit() */
 #include <arpa/inet.h>                         /* htons() */
 #include <stdbool.h>                           /* true, false, bool */
@@ -235,19 +234,7 @@ prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
     memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
 }
 
-void
-no_core_dumps()
-{
-    struct rlimit rlim = {
-	    .rlim_max = 0,    // hard limit (rlim_cur ceiling)
-	    .rlim_cur = 0     // soft limit (actual process limit)
-    };
-    setrlimit(RLIMIT_CORE, &rlim);
-}
-
 int main(int argc, char **argv) {
-    no_core_dumps();
-
     struct arguments args;
     parse_cmdline(&args, argv, argc);
 
