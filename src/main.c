@@ -37,8 +37,8 @@
 #include <sys/resource.h>                      /* setrlimit() */
 #include <stdlib.h>                            /* exit() */
 #include <arpa/inet.h>                         /* htons() */
-
-#include "usage.h"
+#include <stdbool.h>                           /* true, false, bool */
+#include <argp.h>                              /* ArgP */
 
 #define WOL_DATA_LEN       102         /* Max Length of a Wake-On-LAN packet */
 #define WOL_PASSWD_LEN     6           /* Max Length of a Wake-On-LAN password */
@@ -53,6 +53,101 @@
 struct password {
     char x[WOL_PASSWD_LEN];
 };
+
+/*
+ * A structure for containing the results of parsing the argument vector.
+ */
+struct arguments {
+    bool use_q;
+    bool use_p;
+    bool use_i;
+    const char *ifacename;
+    volatile const char *password;
+    const char *target;
+};
+
+const char *argp_program_version = VERSION;
+const char *argp_program_bug_address = "<https://github.com/iamrekcah/wol>";
+
+error_t
+parser(int key, char *arg, struct argp_state *state) {
+    struct arguments *arguments = state->input;
+
+    switch(key) {
+	/* parsed --{quiet|silent} | -{q|s} */
+	case 'q':
+	case 's':
+	    arguments->use_q = true;
+	    break;
+
+	    /* parsed --interface | -i */
+	case 'i':
+	    arguments->use_i = true;
+	    arguments->ifacename = arg;
+	    break;
+
+	    /* parsed --password | -p */
+	case 'p':
+	    arguments->use_p = true;
+	    arguments->password = arg;
+	    break;
+
+	    /* parsed <target mac addr> */
+	case ARGP_KEY_ARG:
+	    if(state->arg_num >= 1) {
+		argp_usage(state);
+		return EINVAL;
+	    }
+	    arguments->target = arg;
+	    break;
+
+	    /* <target mac addr> not provided */
+	case ARGP_KEY_NO_ARGS:
+	    argp_usage(state);
+	    return EINVAL;
+
+	case ARGP_KEY_ERROR:
+	    return errno;
+    }
+
+    return 0;
+}
+
+
+/*
+ * parse_cmdline will process the command-line and store the results
+ * in the given arguments struct.
+ *
+ * params
+ *    struct arguments * : A pointer to struct arguments for results.
+ *    char ** : An array of C-strings (command-line args).
+ *    size_t : The length of the array.
+ *
+ * returns
+ *    0 : on success.
+ */
+int
+parse_cmdline(struct arguments *args, char **argv, size_t argc) {
+
+    /* set defaults */
+    args->use_p = false;
+    args->use_i = false;
+    args->use_q = false;
+
+    /* expected switches */
+    struct argp_option options[] = {
+	    {"quiet"    , 'q', 0,            0, "No output"},
+	    {"silent"   , 's', 0, OPTION_ALIAS, NULL},
+	    {"password" , 'p', "PASSWORD",   0, "Specify the WOL password"},
+	    {"interface", 'i', "NAME",       0, "Specify the net interface to use"},
+	    { 0 }
+    };
+
+    const char args_doc[] = "<mac address>";
+    const char doc[] = "Wake-On-LAN packet sender";
+    struct argp argp = { options, parser, args_doc, doc };
+    return argp_parse(&argp, (int)argc, argv, 0, 0, args);
+}
 
 /*
  * Socket wraps around socket() to abstract the process
