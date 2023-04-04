@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
 	set_payload(&buf, &macaddr);
     }
 
-    if(-1 == sendto(sockfd, buf, buflen, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+    if(-1 == sendto(sockfd, buf, buf_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
 	perror("sendto");
 	exit errno;
     }
