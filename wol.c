@@ -249,7 +249,7 @@ int main(int argc, char **argv) {
 	perror("socket");
 	exit errno;
     }
-    volatile char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
+    char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
     size_t buf_len;
 
     // set frame payload with password
