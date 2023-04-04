@@ -34,10 +34,20 @@
 #include <stdio.h>                             /* perror(), puts() */
 #include <errno.h>                             /* errno */
 #include <error.h>                             /* error() */
+#include <sys/resource.h>                      /* setrlimit() */
 
 #include "wol.h"
 #include "usage.h"
-#include "secure.h"
+
+void
+no_core_dumps()
+{
+    struct rlimit rlim = {
+	    .rlim_max = 0,    // hard limit (rlim_cur ceiling)
+	    .rlim_cur = 0     // soft limit (actual process limit)
+    };
+    setrlimit(RLIMIT_CORE, &rlim);
+}
 
 int main(int argc, char **argv) {
   no_core_dumps();
