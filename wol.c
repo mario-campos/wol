@@ -151,47 +151,6 @@ parse_cmdline(struct arguments *args, char **argv, size_t argc) {
 }
 
 /*
- * Socket wraps around socket() to abstract the process
- * of creating a layer-2 (Ethernet Frame) socket.
- *
- * returns
- *    socket file descriptor
- */
-int
-Socket() {
-    int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
-    if(sockfd == -1) {
-	perror("socket");
-	exit errno;
-    }
-    return sockfd;
-}
-
-/*
- * Sends a packet given the payload, socket file descriptor,
- * and destination address.
- *
- * params
- *    sockfd : socket file descriptor.
- *    buf : a void pointer to payload buffer.
- *    buflen : length of payload buffer.
- *    dest_addr : target address structure.
- *    daddr_len : length of target-address struct.
- */
-void
-Sendto(int sockfd, void *buf, size_t buflen,
-       struct sockaddr_ll *dest_addr, size_t daddr_len) {
-    if(buf == NULL || dest_addr == NULL) {
-	error(1, 0, "Unable to send due to NULL reference.");
-    }
-    int retval = sendto(sockfd, buf, buflen, 0, (struct sockaddr *)dest_addr, daddr_len);
-    if(retval == -1) {
-	perror("sendto");
-	exit errno;
-    }
-}
-
-/*
  * pconvert returns a password (in the form of a password_t struct)
  * given the c-string password. This function implements ether_aton.
  *
@@ -315,7 +274,11 @@ int main(int argc, char **argv) {
     struct sockaddr_ll dest_addr;
     prepare_da(&dest_addr, iface_index);
 
-    int sockfd = Socket();
+    int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
+    if(sockfd == -1) {
+	perror("socket");
+	exit errno;
+    }
     volatile char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
     size_t buf_len;
 
@@ -331,7 +294,10 @@ int main(int argc, char **argv) {
 	set_payload(&buf, &macaddr);
     }
 
-    Sendto(sockfd, &buf, buf_len, &dest_addr, sizeof(dest_addr));
+    if(-1 == sendto(sockfd, buf, buflen, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+	perror("sendto");
+	exit errno;
+    }
 
     /* clean up */
     close(sockfd);
