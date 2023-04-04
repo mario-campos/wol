@@ -1,4 +1,4 @@
-AM_CFLAGS=-Wall -I$(top_srcdir)/include -Wunused -pipe -s
+AM_CFLAGS=-Wall -Wunused
 
 bin_PROGRAMS = wol
 wol_SOURCES = wol.c
