@@ -286,59 +286,59 @@ no_core_dumps()
 }
 
 int main(int argc, char **argv) {
-  no_core_dumps();
+    no_core_dumps();
 
-  struct arguments args;
-  parse_cmdline(&args, argv, argc);
+    struct arguments args;
+    parse_cmdline(&args, argv, argc);
 
-  /* validate interface input */
-  int iface_index;
-  if(args.use_i) {
+    /* validate interface input */
+    int iface_index;
+    if(args.use_i) {
     iface_index = if_nametoindex(args.ifacename);
     if(iface_index == 0)
-      error(EX_NOINPUT, errno, "invalid interface");
-  } else {
-    iface_index = if_nametoindex("eth0");
-  }
+	error(EX_NOINPUT, errno, "invalid interface");
+    } else {
+    	iface_index = if_nametoindex("eth0");
+    }
 
-  /* validate MAC Address */
-  struct ether_addr *addr = ether_aton(args.target);
-  struct ether_addr macaddr;
-  if(addr == NULL) {
-    error(EX_DATAERR, errno, "invalid MAC address");
-  } else {
-    macaddr = *addr;
-  }
+    /* validate MAC Address */
+    struct ether_addr *addr = ether_aton(args.target);
+    struct ether_addr macaddr;
+    if(addr == NULL) {
+    	error(EX_DATAERR, errno, "invalid MAC address");
+    } else {
+    	macaddr = *addr;
+    }
 
-  /* configure destination */
-  struct sockaddr_ll dest_addr;
-  prepare_da(&dest_addr, iface_index);
+    /* configure destination */
+    struct sockaddr_ll dest_addr;
+    prepare_da(&dest_addr, iface_index);
 
-  int sockfd = Socket();
-  volatile char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
-  size_t buf_len;
+    int sockfd = Socket();
+    volatile char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
+    size_t buf_len;
 
-  // set frame payload with password
-  if(args.use_p) {
-    buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
-    set_payload_wp(&buf, &macaddr, pconvert((const char *)args.password));
-  }
+    // set frame payload with password
+    if(args.use_p) {
+	buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
+	set_payload_wp(&buf, &macaddr, pconvert((const char *)args.password));
+    }
 
-  // set frame payload without password
-  else {
-    buf_len = WOL_DATA_LEN;
-    set_payload(&buf, &macaddr);
-  }
+    // set frame payload without password
+    else {
+	buf_len = WOL_DATA_LEN;
+	set_payload(&buf, &macaddr);
+    }
 
-  Sendto(sockfd, &buf, buf_len, &dest_addr, sizeof(dest_addr));
+    Sendto(sockfd, &buf, buf_len, &dest_addr, sizeof(dest_addr));
 
-  /* clean up */
-  close(sockfd);
+    /* clean up */
+    close(sockfd);
 
-  /* wipe password buffers */
-  memset((void*)&buf, 0, buf_len);
-  if(args.use_p) {
-    memset((void*)args.password, 0, strlen((const char *)args.password));
-  }
-  return EX_OK;
+    /* wipe password buffers */
+    memset((void*)&buf, 0, buf_len);
+    if(args.use_p) {
+	memset((void*)args.password, 0, strlen((const char *)args.password));
+    }
+    return EX_OK;
 }
