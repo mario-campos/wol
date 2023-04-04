@@ -211,29 +211,6 @@ set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *p
     memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
 }
 
-/*
- * prepare_da configures the destination-addres structure
- * sockaddr_ll accordingly for Ethernet frames.
- *
- * params
- *    dest_addr : Pointer to destination address structure, sockaddr_ll
- *    iface_index : integer number representing the network interface
- */
-void
-prepare_da(struct sockaddr_ll *dest_addr, int iface_index) {
-    if(dest_addr == NULL) {
-	error(1, 0, "Unable to prepare destination due to NULL reference.");
-    }
-
-    dest_addr->sll_family   = AF_PACKET;
-    dest_addr->sll_protocol = htons(ETH_P_WOL);
-    dest_addr->sll_ifindex  = iface_index;
-    dest_addr->sll_hatype   = ARPHRD_ETHER;
-    dest_addr->sll_pkttype  = PACKET_BROADCAST;
-    dest_addr->sll_halen    = ETH_ALEN;
-    memset(dest_addr->sll_addr, 0xFF, ETH_ALEN);
-}
-
 int main(int argc, char **argv) {
     struct arguments args;
     parse_cmdline(&args, argv, argc);
@@ -259,7 +236,13 @@ int main(int argc, char **argv) {
 
     /* configure destination */
     struct sockaddr_ll dest_addr;
-    prepare_da(&dest_addr, iface_index);
+    dest_addr.sll_family   = AF_PACKET;
+    dest_addr.sll_protocol = htons(ETH_P_WOL);
+    dest_addr.sll_ifindex  = iface_index;
+    dest_addr.sll_hatype   = ARPHRD_ETHER;
+    dest_addr.sll_pkttype  = PACKET_BROADCAST;
+    dest_addr.sll_halen    = ETH_ALEN;
+    memset(dest_addr.sll_addr, 0xFF, ETH_ALEN);
 
     int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
     if(sockfd == -1) {
