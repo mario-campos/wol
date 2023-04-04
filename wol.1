@@ -1,0 +1,31 @@
+.TH WOL 1
+.SH NAME
+wol \- wake a computer by sending a Wake-on-LAN magic packet
+.SH SYNOPSIS
+.B wol
+[\fB\-?qsV\fR]
+[\fB\-i\fR \fIINTERFACE\fR]
+[\fB\-p\fR \fIPASSWORD\fR]
+.IR address
+.SH DESCRIPTION
+.B wol
+is a command-line tool for crafting and sending ethernet frames that conform to the Wake-on-LAN specification for a "magic packet." That is, these magic packets can be sent to boot (wake) a remote, offline computer on the local area network.
+.SH OPTIONS
+.TP
+.BR \-i ", " \-\-interface \fIINTERFACE\fR
+Select the network interface to which to send the Wake-on-LAN magic packet.
+.TP
+.BR \-p ", " \-\-password \fIPASSWORD\fR
+Submit a password, which is encoded in cleartext in the Wake-on-LAN magic packet, to the Wake-on-LAN target. The password must be in the MAC-48 format (XX:XX:XX:XX:XX:XX where XX is a hexadecimal pair).
+.TP
+.BR \-v ", " \-\-version
+Print the version number and exit.
+.TP
+.BR \-? ", " \-\-help ", " \-\-usage
+Print the usage.
+.SH BUGS
+No known bugs.
+.SH CAVEATS
+The target computer's network interface card must support Wake-on-LAN.
+.SH AUTHOR
+Mario Campos
