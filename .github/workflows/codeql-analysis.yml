@@ -3,6 +3,12 @@ name: "CodeQL"
 on:
   push:
     branches: [ master ]
+    paths:
+    - wol.c
+    - autogen.sh
+    - configure.ac
+    - Makefile.am
+    - 'test/**'
   pull_request:
     branches: [ master ]
 
