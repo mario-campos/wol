@@ -16,7 +16,7 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags, const struct 
     // anywhere within its payload 6 bytes of all 255 (FF FF FF FF FF FF in hexadecimal)
     assert(0 == memcmp(buf, "\xFF\xFF\xFF\xFF\xFF\xFF", 6));
 
-    // followed by sixteen repetitions of the target computer's 48-bit MAC address, for a total of 102 bytes.
+    // followed by sixteen repetitions of the target computer's 48-bit MAC address
     const char *target_mac = "\x11\x22\x33\x44\x55\x66"
 			     "\x11\x22\x33\x44\x55\x66"
 			     "\x11\x22\x33\x44\x55\x66"
@@ -33,7 +33,10 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags, const struct 
 			     "\x11\x22\x33\x44\x55\x66"
 			     "\x11\x22\x33\x44\x55\x66"
 			     "\x11\x22\x33\x44\x55\x66";
-    assert(0 == memcmp(buf + 6, target_mac, 96));
+    assert(0 == memcmp(buf + 6, target_mac, 6 * 16));
+
+    // for a total of 102 bytes.
+    assert(102 == len);
 
     return len;
 }
