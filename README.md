@@ -1,5 +1,4 @@
-# wol [![CodeQL](https://github.com/mario-campos/wol/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/mario-campos/wol/actions/workflows/codeql-analysis.yml)
-
+# wol [![Build](https://github.com/mario-campos/wol/actions/workflows/build.yml/badge.svg)](https://github.com/mario-campos/wol/actions/workflows/build.yml)
 
 A Wake-On-LAN utility
 
