@@ -68,7 +68,7 @@ struct arguments {
     bool use_i;
     const char *ifacename;
     const char *password;
-    const char *target;
+    struct ether_addr *target_mac_addr;
 };
 
 const char *argp_program_version = VERSION;
@@ -102,7 +102,10 @@ error_t parser(int key, char *arg, struct argp_state *state) {
 	    argp_usage(state);
 	    return EINVAL;
 	}
-	arguments->target = arg;
+	if(!ether_aton(arg)) {
+	    error(EX_DATAERR, errno, "invalid MAC-address argument; please supply a MAC address in the xx:xx:xx:xx:xx:xx format.");
+	}
+	arguments->target_mac_addr = ether_aton(arg);
 	break;
 
     /* <target mac addr> not provided */
@@ -131,7 +134,7 @@ int main(int argc, char **argv) {
 	{ 0 }
     };
     struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
-    argp_parse(&argp, (int)argc, argv, 0, 0, args);
+    argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
     int iface_index;
     if(args.use_i) {
@@ -143,11 +146,6 @@ int main(int argc, char **argv) {
 	// platform (Linux). And not even that well, because different GNU/Linux distro can (and have)
 	// change the interface-naming convention.
     	iface_index = if_nametoindex("eth0");
-    }
-
-    struct ether_addr *target_mac_addr = ether_aton(args.target);
-    if(NULL == target_mac_addr) {
-    	error(EX_DATAERR, errno, "invalid MAC address");
     }
 
     if(args.use_p) {
@@ -174,7 +172,7 @@ int main(int argc, char **argv) {
     }
 
     for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
-	magic.wol_mg_macaddr[i] = *target_mac_addr;
+	magic.wol_mg_macaddr[i] = *args.target_mac_addr;
     }
 
     if(-1 == sendto(sockfd, (const void *)&magic, WOL_MAGIC_SIZE + wol_password_size, 0, (struct sockaddr *)&sa, sizeof(sa))) {
