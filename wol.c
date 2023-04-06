@@ -124,7 +124,6 @@ parser(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
-
 /*
  * parse_cmdline will process the command-line and store the results
  * in the given arguments struct.
@@ -164,23 +163,20 @@ int main(int argc, char **argv) {
     struct arguments args;
     parse_cmdline(&args, argv, argc);
 
-    /* validate interface input */
     int iface_index;
     if(args.use_i) {
-    iface_index = if_nametoindex(args.ifacename);
-    if(iface_index == 0)
-	error(EX_NOINPUT, errno, "invalid interface");
+	iface_index = if_nametoindex(args.ifacename);
+	if(iface_index == 0)
+	    error(EX_NOINPUT, errno, "invalid interface");
     } else {
     	iface_index = if_nametoindex("eth0");
     }
 
-    /* validate MAC Address */
     struct ether_addr *target_mac_addr = ether_aton(args.target);
     if(NULL == target_mac_addr) {
     	error(EX_DATAERR, errno, "invalid MAC address");
     }
 
-    /* configure destination */
     struct sockaddr_ll dest_addr;
     dest_addr.sll_family   = AF_PACKET;
     dest_addr.sll_protocol = htons(ETH_P_WOL);
@@ -196,7 +192,6 @@ int main(int argc, char **argv) {
 	exit errno;
     }
 
-    // Write Wake-on-LAN magic-packet payload
     struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
     for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
 	magic.wol_mg_macaddr[i] = *target_mac_addr;
@@ -214,10 +209,7 @@ int main(int argc, char **argv) {
 	exit errno;
     }
 
-    /* clean up */
     close(sockfd);
-
-    /* wipe password buffers */
     bzero((void *)&magic, sizeof(magic));
     return EX_OK;
 }
