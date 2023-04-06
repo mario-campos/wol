@@ -53,9 +53,6 @@
 // The size of the payload of the Wake-on-LAN magic packet.
 #define WOL_MAGIC_SIZE (WOL_MAGIC_HEADER_SIZE + (WOL_MAGIC_ADDRESS_COUNT * ETHER_ADDR_LEN))
 
-// The size of the payload of the Wake-on-LAN magic packet with the SecureOn password.
-#define WOL_SECURE_MAGIC_SIZE  (WOL_MAGIC_SIZE + WOL_MAGIC_PASSWORD_SIZE)
-
 // The Ethernet Protocol ID for the Wake-on-LAN protocol.
 #define ETH_P_WOL 0x0842
 
@@ -204,7 +201,7 @@ int main(int argc, char **argv) {
 	magic.wol_mg_macaddr[i] = *target_mac_addr;
     }
 
-    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SIZE + wol_password_size : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&sa, sizeof(sa))) {
+    if(-1 == sendto(sockfd, (const void *)&magic, WOL_MAGIC_SIZE + wol_password_size, 0, (struct sockaddr *)&sa, sizeof(sa))) {
 	perror("sendto");
 	exit errno;
     }
