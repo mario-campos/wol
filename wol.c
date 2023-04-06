@@ -30,6 +30,8 @@
 #include <string.h>                            /* memset(), explicit_bzero() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
+#include <sys/types.h>                         /* struct ifaddrs */
+#include <ifaddrs.h>                           /* getifaddrs() */
 #include <net/ethernet.h>                      /* ETHER_ADDR_LEN */
 #include <net/if.h>                            /* if_nametoindex() */
 #include <unistd.h>                            /* close() */
@@ -66,7 +68,7 @@ struct arguments {
     bool use_q;
     bool use_p;
     bool use_i;
-    const char *ifacename;
+    int ifindex;
     const char *password;
     struct ether_addr *target_mac_addr;
 };
@@ -86,8 +88,11 @@ error_t parser(int key, char *arg, struct argp_state *state) {
 
     /* parsed --interface | -i */
     case 'i':
+	if(!if_nametoindex(arg)) {
+	    error(EX_NOINPUT, errno, "interface not found; please supply a valid interface name.");
+	}
 	arguments->use_i = true;
-	arguments->ifacename = arg;
+	arguments->ifindex = if_nametoindex(arg);
 	break;
 
     /* parsed --password | -p */
@@ -136,16 +141,23 @@ int main(int argc, char **argv) {
     struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
     argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
-    int iface_index;
-    if(args.use_i) {
-	iface_index = if_nametoindex(args.ifacename);
-	if(iface_index == 0)
-	    error(EX_NOINPUT, errno, "invalid interface");
-    } else {
-	// TODO: Don't hardcode the interface name, because this couples the code to a particular
-	// platform (Linux). And not even that well, because different GNU/Linux distro can (and have)
-	// change the interface-naming convention.
-    	iface_index = if_nametoindex("eth0");
+    // If a network interface is not specified, use the "first" applicable interface.
+    if(!args.use_i) {
+	struct ifaddrs *ifas;
+
+	if(getifaddrs(&ifas)) {
+	    perror("getifaddrs");
+	    exit errno;
+	}
+
+	for(struct ifaddrs *ifa = ifas; ifa; ifa = ifa->ifa_next) {
+	    if(ifa->ifa_addr && AF_PACKET == ifa->ifa_addr->sa_family) {
+		args.ifindex = if_nametoindex(ifa->ifa_name);
+		break;
+	    }
+    	}
+
+	freeifaddrs(ifas);
     }
 
     if(args.use_p) {
@@ -159,7 +171,7 @@ int main(int argc, char **argv) {
     struct sockaddr_ll sa;
     sa.sll_family   = AF_PACKET;
     sa.sll_protocol = htons(ETH_P_WOL);
-    sa.sll_ifindex  = iface_index;
+    sa.sll_ifindex  = args.ifindex;
     sa.sll_hatype   = ARPHRD_ETHER;
     sa.sll_pkttype  = PACKET_BROADCAST;
     sa.sll_halen    = ETH_ALEN;
