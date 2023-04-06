@@ -169,6 +169,9 @@ int main(int argc, char **argv) {
 	if(iface_index == 0)
 	    error(EX_NOINPUT, errno, "invalid interface");
     } else {
+	// TODO: Don't hardcode the interface name, because this couples the code to a particular
+	// platform (Linux). And not even that well, because different GNU/Linux distro can (and have)
+	// change the interface-naming convention.
     	iface_index = if_nametoindex("eth0");
     }
 
@@ -198,6 +201,8 @@ int main(int argc, char **argv) {
     }
 
     if(args.use_p) {
+	// TODO: Don't use ether_aton(3) to convert/encode the password, as it expects
+	// the password to conform to the syntax of a MAC address (xx:xx:xx:xx:xx:xx).
 	struct ether_addr *hex_pass = ether_aton((const char *)args.password);
 	magic.wol_mg_password = *hex_pass;
     }
