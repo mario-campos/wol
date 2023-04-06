@@ -31,6 +31,7 @@
 #include <strings.h>                           /* bzero() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
+#include <net/ethernet.h>                      /* ETHER_ADDR_LEN */
 #include <net/if.h>                            /* if_nametoindex() */
 #include <unistd.h>                            /* close() */
 #include <stdio.h>                             /* perror(), puts() */
@@ -51,7 +52,7 @@
 #define WOL_MAGIC_PASSWORD_SIZE 6
 
 // The size of the payload of the Wake-on-LAN magic packet.
-#define WOL_MAGIC_SIZE (WOL_MAGIC_HEADER_SIZE + (WOL_MAGIC_ADDRESS_COUNT * 6))
+#define WOL_MAGIC_SIZE (WOL_MAGIC_HEADER_SIZE + (WOL_MAGIC_ADDRESS_COUNT * ETHER_ADDR_LEN))
 
 // The size of the payload of the Wake-on-LAN magic packet with the SecureOn password.
 #define WOL_SECURE_MAGIC_SIZE  (WOL_MAGIC_SIZE + WOL_MAGIC_PASSWORD_SIZE)
