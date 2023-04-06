@@ -65,15 +65,12 @@ struct wol_magic {
     char               wol_mg_password[WOL_MAGIC_PASSWORD_SIZE];
 } __attribute__((__packed__));
 
-/*
- * A structure for containing the results of parsing the argument vector.
- */
 struct arguments {
     bool use_q;
     bool use_p;
     bool use_i;
     const char *ifacename;
-    volatile const char *password;
+    const char *password;
     const char *target;
 };
 
@@ -215,7 +212,5 @@ int main(int argc, char **argv) {
 	exit errno;
     }
 
-    close(sockfd);
-    explicit_bzero((void *)&magic, sizeof(magic));
     return EX_OK;
 }
