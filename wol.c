@@ -28,6 +28,7 @@
 
 #include <sysexits.h>                          /* EX_DATAERR, EX_NOINPUT */
 #include <string.h>                            /* memset() */
+#include <strings.h>                           /* bzero() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
 #include <net/if.h>                            /* if_nametoindex() */
@@ -40,19 +41,18 @@
 #include <stdbool.h>                           /* true, false, bool */
 #include <argp.h>                              /* ArgP */
 
-#define WOL_DATA_LEN       102         /* Max Length of a Wake-On-LAN packet */
+#define WOL_DATA_COUNT     16
+#define WOL_HEADER_LEN     6           /* Length of a Wake-On-LAN 0xFF header */
 #define WOL_PASSWD_LEN     6           /* Max Length of a Wake-On-LAN password */
+#define WOL_MAGIC_LEN      (WOL_HEADER_LEN + (WOL_DATA_COUNT * 6))
+#define WOL_MAGIC_SECURE_LEN  (WOL_MAGIC_LEN + WOL_PASSWD_LEN)
 #define ETH_P_WOL          0x0842      /* Ethernet Protocol ID for Wake-On-LAN */
 
-/*
- * Password data type.
- *
- * A password is made up of 48 bits. For all intents and purposes,
- * an ether_addr struct can work, but this way is more logical.
- */
-struct password {
-    char x[WOL_PASSWD_LEN];
-};
+struct wol_magic {
+    char	       wol_mg_header[WOL_HEADER_LEN];
+    struct ether_addr  wol_mg_macaddr[WOL_DATA_COUNT];
+    struct ether_addr  wol_mg_password;
+} __attribute__((__packed__));
 
 /*
  * A structure for containing the results of parsing the argument vector.
@@ -184,38 +184,19 @@ int main(int argc, char **argv) {
 	perror("socket");
 	exit errno;
     }
-    char buf[WOL_DATA_LEN + WOL_PASSWD_LEN];
-    size_t buf_len;
 
-    // set frame payload with password
+    // Write Wake-on-LAN magic-packet payload
+    struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
+    for(size_t i = 0; i < WOL_DATA_COUNT; ++i) {
+	magic.wol_mg_macaddr[i] = *target_mac_addr;
+    }
+
     if(args.use_p) {
-	struct password result;
-	struct ether_addr *hex_pass = ether_aton(args.password);
-	memcpy(&result, hex_pass, WOL_PASSWD_LEN);
-
-	int i;
-	void *ptr = buf;
-	memset(ptr, 0xFF, ETH_ALEN);
-	for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
-	    memcpy(ptr, target_mac_addr, ETH_ALEN);
-	}
-	memcpy(buf + WOL_DATA_LEN, (const char *)&result, WOL_PASSWD_LEN);
-
-	buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
+	struct ether_addr *hex_pass = ether_aton((const char *)args.password);
+	magic.wol_mg_password = *hex_pass;
     }
 
-    // set frame payload without password
-    else {
-	buf_len = WOL_DATA_LEN;
-	int i;
-	void *ptr = buf;
-	memset(ptr, 0xFF, ETH_ALEN);
-	for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
-	    memcpy(ptr, target_mac_addr, ETH_ALEN);
-	}
-    }
-
-    if(-1 == sendto(sockfd, buf, buf_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SECURE_LEN : WOL_MAGIC_LEN, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
 	perror("sendto");
 	exit errno;
     }
@@ -224,9 +205,6 @@ int main(int argc, char **argv) {
     close(sockfd);
 
     /* wipe password buffers */
-    memset((void*)&buf, 0, buf_len);
-    if(args.use_p) {
-	memset((void*)args.password, 0, strlen((const char *)args.password));
-    }
+    bzero((void *)&magic, sizeof(magic));
     return EX_OK;
 }
