@@ -78,40 +78,40 @@ error_t parser(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
 
     switch(key) {
-	/* parsed --{quiet|silent} | -{q|s} */
-	case 'q':
-	case 's':
-	    arguments->use_q = true;
-	    break;
+    /* parsed --{quiet|silent} | -{q|s} */
+    case 'q':
+    case 's':
+	arguments->use_q = true;
+	break;
 
-	    /* parsed --interface | -i */
-	case 'i':
-	    arguments->use_i = true;
-	    arguments->ifacename = arg;
-	    break;
+    /* parsed --interface | -i */
+    case 'i':
+	arguments->use_i = true;
+	arguments->ifacename = arg;
+	break;
 
-	    /* parsed --password | -p */
-	case 'p':
-	    arguments->use_p = true;
-	    arguments->password = arg;
-	    break;
+    /* parsed --password | -p */
+    case 'p':
+	arguments->use_p = true;
+	arguments->password = arg;
+	break;
 
-	    /* parsed <target mac addr> */
-	case ARGP_KEY_ARG:
-	    if(state->arg_num >= 1) {
-		argp_usage(state);
-		return EINVAL;
-	    }
-	    arguments->target = arg;
-	    break;
-
-	    /* <target mac addr> not provided */
-	case ARGP_KEY_NO_ARGS:
+    /* parsed <target mac addr> */
+    case ARGP_KEY_ARG:
+	if(state->arg_num >= 1) {
 	    argp_usage(state);
 	    return EINVAL;
+	}
+	arguments->target = arg;
+	break;
 
-	case ARGP_KEY_ERROR:
-	    return errno;
+    /* <target mac addr> not provided */
+    case ARGP_KEY_NO_ARGS:
+	argp_usage(state);
+	return EINVAL;
+
+    case ARGP_KEY_ERROR:
+	return errno;
     }
 
     return 0;
