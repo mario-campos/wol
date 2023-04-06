@@ -60,7 +60,7 @@
 #define ETH_P_WOL 0x0842
 
 struct wol_magic {
-    char	       wol_mg_header[WOL_HEADER_LEN];
+    char	       wol_mg_header[WOL_MAGIC_HEADER_SIZE];
     struct ether_addr  wol_mg_macaddr[WOL_MAGIC_ADDRESS_COUNT];
     struct ether_addr  wol_mg_password;
 } __attribute__((__packed__));
