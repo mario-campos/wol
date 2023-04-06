@@ -117,45 +117,21 @@ error_t parser(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
-/*
- * parse_cmdline will process the command-line and store the results
- * in the given arguments struct.
- *
- * params
- *    struct arguments * : A pointer to struct arguments for results.
- *    char ** : An array of C-strings (command-line args).
- *    size_t : The length of the array.
- *
- * returns
- *    0 : on success.
- */
-int parse_cmdline(struct arguments *args, char **argv, size_t argc) {
-    /* set defaults */
-    args->use_p = false;
-    args->use_i = false;
-    args->use_q = false;
-
-    /* expected switches */
-    struct argp_option options[] = {
-	    {"quiet"    , 'q', 0,            0, "No output"},
-	    {"silent"   , 's', 0, OPTION_ALIAS, NULL},
-	    {"password" , 'p', "PASSWORD",   0, "Specify the WOL password"},
-	    {"interface", 'i', "NAME",       0, "Specify the net interface to use"},
-	    { 0 }
-    };
-
-    const char args_doc[] = "<mac address>";
-    const char doc[] = "Wake-On-LAN packet sender";
-    struct argp argp = { options, parser, args_doc, doc };
-    return argp_parse(&argp, (int)argc, argv, 0, 0, args);
-}
-
 int main(int argc, char **argv) {
     size_t wol_password_size = 0;
     struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
 
-    struct arguments args;
-    parse_cmdline(&args, argv, argc);
+    // parse command-line arguments
+    struct arguments args = { .use_p = false, .use_i = false, .use_q = false };
+    struct argp_option options[] = {
+	{"quiet"    , 'q', 0,            0, "No output"},
+	{"silent"   , 's', 0, OPTION_ALIAS, NULL},
+	{"password" , 'p', "PASSWORD",   0, "Specify the WOL password"},
+	{"interface", 'i', "NAME",       0, "Specify the net interface to use"},
+	{ 0 }
+    };
+    struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
+    argp_parse(&argp, (int)argc, argv, 0, 0, args);
 
     int iface_index;
     if(args.use_i) {
