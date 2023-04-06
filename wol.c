@@ -185,14 +185,14 @@ int main(int argc, char **argv) {
 	strncpy(magic.wol_mg_password, args.password, wol_password_size);
     }
 
-    struct sockaddr_ll dest_addr;
-    dest_addr.sll_family   = AF_PACKET;
-    dest_addr.sll_protocol = htons(ETH_P_WOL);
-    dest_addr.sll_ifindex  = iface_index;
-    dest_addr.sll_hatype   = ARPHRD_ETHER;
-    dest_addr.sll_pkttype  = PACKET_BROADCAST;
-    dest_addr.sll_halen    = ETH_ALEN;
-    memset(dest_addr.sll_addr, 0xFF, ETH_ALEN);
+    struct sockaddr_ll sa;
+    sa.sll_family   = AF_PACKET;
+    sa.sll_protocol = htons(ETH_P_WOL);
+    sa.sll_ifindex  = iface_index;
+    sa.sll_hatype   = ARPHRD_ETHER;
+    sa.sll_pkttype  = PACKET_BROADCAST;
+    sa.sll_halen    = ETH_ALEN;
+    memset(sa.sll_addr, 0xFF, ETH_ALEN);
 
     int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
     if(sockfd == -1) {
@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 	magic.wol_mg_macaddr[i] = *target_mac_addr;
     }
 
-    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SIZE + wol_password_size : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SIZE + wol_password_size : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&sa, sizeof(sa))) {
 	perror("sendto");
 	exit errno;
     }
