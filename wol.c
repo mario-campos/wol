@@ -27,8 +27,7 @@
 #include "config.h"
 
 #include <sysexits.h>                          /* EX_DATAERR, EX_NOINPUT */
-#include <string.h>                            /* memset() */
-#include <strings.h>                           /* bzero() */
+#include <string.h>                            /* memset(), explicit_bzero() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
 #include <net/ethernet.h>                      /* ETHER_ADDR_LEN */
@@ -216,6 +215,6 @@ int main(int argc, char **argv) {
     }
 
     close(sockfd);
-    bzero((void *)&magic, sizeof(magic));
+    explicit_bzero((void *)&magic, sizeof(magic));
     return EX_OK;
 }
