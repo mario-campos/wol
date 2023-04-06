@@ -226,12 +226,9 @@ int main(int argc, char **argv) {
     }
 
     /* validate MAC Address */
-    struct ether_addr *addr = ether_aton(args.target);
-    struct ether_addr macaddr;
-    if(addr == NULL) {
+    struct ether_addr *target_mac_addr = ether_aton(args.target);
+    if(NULL == target_mac_addr) {
     	error(EX_DATAERR, errno, "invalid MAC address");
-    } else {
-    	macaddr = *addr;
     }
 
     /* configure destination */
@@ -255,13 +252,13 @@ int main(int argc, char **argv) {
     // set frame payload with password
     if(args.use_p) {
 	buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
-	set_payload_wp(&buf, &macaddr, pconvert((const char *)args.password));
+	set_payload_wp(&buf, target_mac_addr, pconvert((const char *)args.password));
     }
 
     // set frame payload without password
     else {
 	buf_len = WOL_DATA_LEN;
-	set_payload(&buf, &macaddr);
+	set_payload(&buf, target_mac_addr);
     }
 
     if(-1 == sendto(sockfd, buf, buf_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
