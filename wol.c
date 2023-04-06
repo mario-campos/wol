@@ -62,7 +62,7 @@
 struct wol_magic {
     char	       wol_mg_header[WOL_MAGIC_HEADER_SIZE];
     struct ether_addr  wol_mg_macaddr[WOL_MAGIC_ADDRESS_COUNT];
-    struct ether_addr  wol_mg_password;
+    char               wol_mg_password[WOL_MAGIC_PASSWORD_SIZE];
 } __attribute__((__packed__));
 
 /*
@@ -160,6 +160,9 @@ parse_cmdline(struct arguments *args, char **argv, size_t argc) {
 }
 
 int main(int argc, char **argv) {
+    size_t wol_password_size = 0;
+    struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
+
     struct arguments args;
     parse_cmdline(&args, argv, argc);
 
@@ -180,6 +183,14 @@ int main(int argc, char **argv) {
     	error(EX_DATAERR, errno, "invalid MAC address");
     }
 
+    if(args.use_p) {
+	if (strlen(args.password) > WOL_MAGIC_PASSWORD_SIZE) {
+	    error(EX_DATAERR, errno, "the supplied password is too long; please supply a password of length 6 characters or less.");
+	}
+	wol_password_size = strlen(args.password) < WOL_MAGIC_PASSWORD_SIZE ? strlen(args.password) : WOL_MAGIC_PASSWORD_SIZE;
+	strncpy(magic.wol_mg_password, args.password, wol_password_size);
+    }
+
     struct sockaddr_ll dest_addr;
     dest_addr.sll_family   = AF_PACKET;
     dest_addr.sll_protocol = htons(ETH_P_WOL);
@@ -195,21 +206,11 @@ int main(int argc, char **argv) {
 	exit errno;
     }
 
-    struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
     for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
 	magic.wol_mg_macaddr[i] = *target_mac_addr;
     }
 
-    if(args.use_p) {
-	// TODO: Don't use ether_aton(3) to convert/encode the password, as it expects
-	// the password to conform to the syntax of a MAC address (xx:xx:xx:xx:xx:xx).
-	struct ether_addr *hex_pass = ether_aton((const char *)args.password);
-	magic.wol_mg_password = *hex_pass;
-    }
-
-    // TODO: Use the actual size of the password in the "length" argument to sendto(2),
-    // instead of the size of the password field (6 bytes).
-    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_SECURE_MAGIC_SIZE : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SIZE + wol_password_size : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
 	perror("sendto");
 	exit errno;
     }
