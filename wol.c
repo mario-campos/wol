@@ -77,8 +77,7 @@ struct arguments {
 const char *argp_program_version = VERSION;
 const char *argp_program_bug_address = "<https://github.com/mario-campos/wol>";
 
-error_t
-parser(int key, char *arg, struct argp_state *state) {
+error_t parser(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
 
     switch(key) {
@@ -133,9 +132,7 @@ parser(int key, char *arg, struct argp_state *state) {
  * returns
  *    0 : on success.
  */
-int
-parse_cmdline(struct arguments *args, char **argv, size_t argc) {
-
+int parse_cmdline(struct arguments *args, char **argv, size_t argc) {
     /* set defaults */
     args->use_p = false;
     args->use_i = false;
