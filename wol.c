@@ -41,16 +41,27 @@
 #include <stdbool.h>                           /* true, false, bool */
 #include <argp.h>                              /* ArgP */
 
-#define WOL_DATA_COUNT     16
-#define WOL_HEADER_LEN     6           /* Length of a Wake-On-LAN 0xFF header */
-#define WOL_PASSWD_LEN     6           /* Max Length of a Wake-On-LAN password */
-#define WOL_MAGIC_LEN      (WOL_HEADER_LEN + (WOL_DATA_COUNT * 6))
-#define WOL_MAGIC_SECURE_LEN  (WOL_MAGIC_LEN + WOL_PASSWD_LEN)
-#define ETH_P_WOL          0x0842      /* Ethernet Protocol ID for Wake-On-LAN */
+// The number of MAC addresss repetitions in the payload of the Wake-on-LAN magic packet.
+#define WOL_MAGIC_ADDRESS_COUNT 16
+
+// The size of the "0xFF0xFF0xFF0xFF0xFF0xFF" header in the Wake-on-LAN magic packet.
+#define WOL_MAGIC_HEADER_SIZE 6
+
+// The size of the SecureOn password field in the Wake-on-LAN magic packet.
+#define WOL_MAGIC_PASSWORD_SIZE 6
+
+// The size of the payload of the Wake-on-LAN magic packet.
+#define WOL_MAGIC_SIZE (WOL_MAGIC_HEADER_SIZE + (WOL_MAGIC_ADDRESS_COUNT * 6))
+
+// The size of the payload of the Wake-on-LAN magic packet with the SecureOn password.
+#define WOL_SECURE_MAGIC_SIZE  (WOL_MAGIC_SIZE + WOL_MAGIC_PASSWORD_SIZE)
+
+// The Ethernet Protocol ID for the Wake-on-LAN protocol.
+#define ETH_P_WOL 0x0842
 
 struct wol_magic {
     char	       wol_mg_header[WOL_HEADER_LEN];
-    struct ether_addr  wol_mg_macaddr[WOL_DATA_COUNT];
+    struct ether_addr  wol_mg_macaddr[WOL_MAGIC_ADDRESS_COUNT];
     struct ether_addr  wol_mg_password;
 } __attribute__((__packed__));
 
@@ -187,7 +198,7 @@ int main(int argc, char **argv) {
 
     // Write Wake-on-LAN magic-packet payload
     struct wol_magic magic = { .wol_mg_header = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF} };
-    for(size_t i = 0; i < WOL_DATA_COUNT; ++i) {
+    for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
 	magic.wol_mg_macaddr[i] = *target_mac_addr;
     }
 
@@ -196,7 +207,9 @@ int main(int argc, char **argv) {
 	magic.wol_mg_password = *hex_pass;
     }
 
-    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_MAGIC_SECURE_LEN : WOL_MAGIC_LEN, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
+    // TODO: Use the actual size of the password in the "length" argument to sendto(2),
+    // instead of the size of the password field (6 bytes).
+    if(-1 == sendto(sockfd, (const void *)&magic, args.use_p ? WOL_SECURE_MAGIC_SIZE : WOL_MAGIC_SIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
 	perror("sendto");
 	exit errno;
     }
