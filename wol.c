@@ -149,68 +149,6 @@ parse_cmdline(struct arguments *args, char **argv, size_t argc) {
     return argp_parse(&argp, (int)argc, argv, 0, 0, args);
 }
 
-/*
- * pconvert returns a password (in the form of a password_t struct)
- * given the c-string password. This function implements ether_aton.
- *
- * params
- *    The password char string
- *
- * returns
- *    A pointer to a populated password struct
- */
-struct password *
-pconvert(const char *passwd_str) {
-    if(passwd_str == NULL) {
-	error(1, 0, "Unable to convert password due to NULL reference.");
-    }
-    static struct password result;
-    struct ether_addr *hex_pass = ether_aton(passwd_str);
-    memcpy(&result, hex_pass, WOL_PASSWD_LEN);
-    return &result;
-}
-
-/*
- * set_payload writes the provided address into the provided
- * buffer according to the Wake-On-LAN protocol.
- *
- * params
- *    buf : pointer to payload buffer
- *    addr : pointer to a struct ether_addr.
- */
-void
-set_payload(void *buf, struct ether_addr *addr) {
-    if(buf == NULL || addr == NULL) {
-	error(1, 0, "Unable to set payload due to NULL reference.");
-    }
-
-    int i;
-    void *ptr = buf;
-    memset(ptr, 0xFF, ETH_ALEN);
-    for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
-	memcpy(ptr, addr, ETH_ALEN);
-    }
-}
-
-/*
- * set_payload_wp writes the provided address into the provided
- * buffer according to the Wake-On-LAN protocol. Then, writes the
- * password at the end of the payload, as per the WOL protocol.
- *
- * params
- *    pointer to buffer (payload)
- *    pointer to a struct ether_addr
- *    pointer to password structure
- */
-void
-set_payload_wp(void *payload_ptr, struct ether_addr *macaddr, struct password *passwd) {
-    if(payload_ptr == NULL || macaddr == NULL || passwd == NULL) {
-	error(1, 0, "Unable to set payload due to NULL reference.");
-    }
-    set_payload(payload_ptr, macaddr);
-    memcpy(payload_ptr + WOL_DATA_LEN, passwd, WOL_PASSWD_LEN);
-}
-
 int main(int argc, char **argv) {
     struct arguments args;
     parse_cmdline(&args, argv, argc);
@@ -251,14 +189,30 @@ int main(int argc, char **argv) {
 
     // set frame payload with password
     if(args.use_p) {
+	struct password result;
+	struct ether_addr *hex_pass = ether_aton(args.password);
+	memcpy(&result, hex_pass, WOL_PASSWD_LEN);
+
+	int i;
+	void *ptr = buf;
+	memset(ptr, 0xFF, ETH_ALEN);
+	for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
+	    memcpy(ptr, target_mac_addr, ETH_ALEN);
+	}
+	memcpy(buf + WOL_DATA_LEN, (const char *)&result, WOL_PASSWD_LEN);
+
 	buf_len = WOL_DATA_LEN + WOL_PASSWD_LEN;
-	set_payload_wp(&buf, target_mac_addr, pconvert((const char *)args.password));
     }
 
     // set frame payload without password
     else {
 	buf_len = WOL_DATA_LEN;
-	set_payload(&buf, target_mac_addr);
+	int i;
+	void *ptr = buf;
+	memset(ptr, 0xFF, ETH_ALEN);
+	for(i=0, ptr += ETH_ALEN; i < 16; ++i, ptr += ETH_ALEN) {
+	    memcpy(ptr, target_mac_addr, ETH_ALEN);
+	}
     }
 
     if(-1 == sendto(sockfd, buf, buf_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr))) {
