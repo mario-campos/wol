@@ -97,6 +97,9 @@ error_t parser(int key, char *arg, struct argp_state *state) {
 
     /* parsed --password | -p */
     case 'p':
+	if(strlen(arg) > WOL_MAGIC_PASSWORD_SIZE) {
+	    error(EX_USAGE, 0, "the supplied password is too long; please supply a password of length 6 characters or less.");
+	}
 	arguments->use_p = true;
 	arguments->password = arg;
 	break;
@@ -142,9 +145,6 @@ int main(int argc, char **argv) {
     argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
     if(args.use_p) {
-	if (strlen(args.password) > WOL_MAGIC_PASSWORD_SIZE) {
-	    error(EX_USAGE, 0, "the supplied password is too long; please supply a password of length 6 characters or less.");
-	}
 	wol_password_size = strlen(args.password) < WOL_MAGIC_PASSWORD_SIZE ? strlen(args.password) : WOL_MAGIC_PASSWORD_SIZE;
 	strncpy(magic.wol_mg_password, args.password, wol_password_size);
     }
