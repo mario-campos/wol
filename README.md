@@ -21,8 +21,8 @@ sudo make install
 Usage: wol [OPTION...] <mac address>
 Wake-On-LAN packet sender
 
-  -i, --interface=NAME       Specify the net interface to use
-  -p, --password=PASSWORD    Specify the WOL password
+  -i, --interface=NAME       Specify the network interface through which to send [required]
+  -p, --password=PASSWORD    Specify the SecureOn password
   -q, -s, --quiet, --silent  No output
   -?, --help                 Give this help list
       --usage                Give a short usage message

@@ -30,8 +30,6 @@
 #include <string.h>                            /* memset(), explicit_bzero() */
 #include <linux/if_packet.h>                   /* sockaddr_ll */
 #include <netinet/ether.h>                     /* ether_aton() */
-#include <sys/types.h>                         /* struct ifaddrs */
-#include <ifaddrs.h>                           /* getifaddrs() */
 #include <net/ethernet.h>                      /* ETHER_ADDR_LEN */
 #include <net/if.h>                            /* if_nametoindex() */
 #include <unistd.h>                            /* close() */
@@ -68,7 +66,7 @@ struct arguments {
     bool use_q;
     bool use_p;
     bool use_i;
-    int ifindex;
+    unsigned int ifindex;
     const char *password;
     struct ether_addr *target_mac_addr;
 };
@@ -134,30 +132,15 @@ int main(int argc, char **argv) {
     struct argp_option options[] = {
 	{"quiet"    , 'q', 0,            0, "No output"},
 	{"silent"   , 's', 0, OPTION_ALIAS, NULL},
-	{"password" , 'p', "PASSWORD",   0, "Specify the WOL password"},
-	{"interface", 'i', "NAME",       0, "Specify the net interface to use"},
+	{"password" , 'p', "PASSWORD",   0, "Specify the SecureOn password"},
+	{"interface", 'i', "NAME",       0, "Specify the network interface through which to send [required]"},
 	{ 0 }
     };
     struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
     argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
-    // If a network interface is not specified, use the "first" applicable interface.
     if(!args.use_i) {
-	struct ifaddrs *ifas;
-
-	if(getifaddrs(&ifas)) {
-	    perror("getifaddrs");
-	    exit errno;
-	}
-
-	for(struct ifaddrs *ifa = ifas; ifa; ifa = ifa->ifa_next) {
-	    if(ifa->ifa_addr && AF_PACKET == ifa->ifa_addr->sa_family) {
-		args.ifindex = if_nametoindex(ifa->ifa_name);
-		break;
-	    }
-    	}
-
-	freeifaddrs(ifas);
+	error(EX_NOINPUT, 0, "no interface specified; please specify the network interface through which to send with `-i`.");
     }
 
     if(args.use_p) {
