@@ -32,6 +32,8 @@
 #include <netinet/ether.h>                     /* ether_aton() */
 #include <net/ethernet.h>                      /* ETHER_ADDR_LEN */
 #include <net/if.h>                            /* if_nametoindex() */
+#include <sys/types.h>                         /* struct ifaddrs */
+#include <ifaddrs.h>                           /* getifaddrs() */
 #include <unistd.h>                            /* close() */
 #include <stdio.h>                             /* perror(), puts() */
 #include <errno.h>                             /* errno */
@@ -139,10 +141,6 @@ int main(int argc, char **argv) {
     struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
     argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
-    if(!args.use_i) {
-	error(EX_NOINPUT, 0, "no interface specified; please specify the network interface through which to send with `-i`.");
-    }
-
     if(args.use_p) {
 	if (strlen(args.password) > WOL_MAGIC_PASSWORD_SIZE) {
 	    error(EX_USAGE, 0, "the supplied password is too long; please supply a password of length 6 characters or less.");
@@ -154,7 +152,6 @@ int main(int argc, char **argv) {
     struct sockaddr_ll sa;
     sa.sll_family   = AF_PACKET;
     sa.sll_protocol = htons(ETH_P_WOL);
-    sa.sll_ifindex  = args.ifindex;
     sa.sll_hatype   = ARPHRD_ETHER;
     sa.sll_pkttype  = PACKET_BROADCAST;
     sa.sll_halen    = ETH_ALEN;
@@ -169,9 +166,28 @@ int main(int argc, char **argv) {
 	magic.wol_mg_macaddr[i] = *args.target_mac_addr;
     }
 
-    if(-1 == sendto(sockfd, (const void *)&magic, WOL_MAGIC_SIZE + wol_password_size, 0, (struct sockaddr *)&sa, sizeof(sa))) {
-	error(EX_IOERR, errno, "sendto");
+    struct ifaddrs *ifas;
+    if(-1 == getifaddrs(&ifas)) {
+	error(EX_IOERR, errno, "getifaddrs");
     }
 
+    for(struct ifaddrs *ifa = ifas; ifa; ifa = ifa->ifa_next) {
+	// If a network interface is specified (with `-i`), skip all others.
+	if(args.use_i && args.ifindex != if_nametoindex(ifa->ifa_name)) {
+	    continue;
+	}
+
+	// Skip interfaces that do not support the AF_PACKET family.
+	if(ifa->ifa_addr && AF_PACKET != ifa->ifa_addr->sa_family) {
+	    continue;
+	}
+
+	sa.sll_ifindex = if_nametoindex(ifa->ifa_name);
+	if (-1 == sendto(sockfd, (const void *) &magic, WOL_MAGIC_SIZE + wol_password_size, 0, (struct sockaddr *)&sa, sizeof(sa))) {
+	    error(EX_IOERR, errno, "sendto");
+	}
+    }
+
+    freeifaddrs(ifas);
     return EX_OK;
 }

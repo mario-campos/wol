@@ -8,7 +8,7 @@ A Wake-On-LAN utility
 
 ### INSTALL
 
-```bash
+```shell
 ./autogen.sh
 ./configure
 make
@@ -17,7 +17,7 @@ sudo make install
 
 ### USAGE
 
-```bash
+```shell
 Usage: wol [OPTION...] <mac address>
 Wake-On-LAN packet sender
 
@@ -29,6 +29,23 @@ Wake-On-LAN packet sender
   -V, --version              Print program version
 
 Report bugs to <https://github.com/mario-campos/wol>.
+```
+
+In its simplest form, simply pass a MAC-48 address in the typical colon-separated format (xx:xx:xx:xx:xx:xx) as an argument. Without specifying an interface, this command will broadcast the Wake-on-LAN magic packet across all supported interfaces:
+
+```shell
+wol de:ad:be:ef:ca:fe
+```
+You can limit the activity to a single network interface by specifying it with the `-i`/`--interface` flags:
+
+```shell
+wol --interface eth0 de:ad:be:ef:ca:fe
+```
+
+You can also supply a SecureOn password, with the `-p`/`--password` flags, for Wake-on-LAN hosts that support it. But beware that the password must be 6 characters or less and it is transmitted in cleartext.
+
+```shell
+wol --password foobar de:ad:be:ef:ca:fe
 ```
 
 ### CAVEATS
