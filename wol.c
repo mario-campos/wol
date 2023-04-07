@@ -106,7 +106,7 @@ error_t parser(int key, char *arg, struct argp_state *state) {
 	    return EINVAL;
 	}
 	if(!ether_aton(arg)) {
-	    error(EX_DATAERR, errno, "invalid MAC-address argument; please supply a MAC address in the xx:xx:xx:xx:xx:xx format.");
+	    error(EX_USAGE, 0, "invalid MAC-address argument; please supply a MAC address in the xx:xx:xx:xx:xx:xx format.");
 	}
 	arguments->target_mac_addr = ether_aton(arg);
 	break;
@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
 
     if(args.use_p) {
 	if (strlen(args.password) > WOL_MAGIC_PASSWORD_SIZE) {
-	    error(EX_DATAERR, errno, "the supplied password is too long; please supply a password of length 6 characters or less.");
+	    error(EX_USAGE, 0, "the supplied password is too long; please supply a password of length 6 characters or less.");
 	}
 	wol_password_size = strlen(args.password) < WOL_MAGIC_PASSWORD_SIZE ? strlen(args.password) : WOL_MAGIC_PASSWORD_SIZE;
 	strncpy(magic.wol_mg_password, args.password, wol_password_size);
@@ -162,8 +162,7 @@ int main(int argc, char **argv) {
 
     int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
     if(sockfd == -1) {
-	perror("socket");
-	exit errno;
+	error(EX_UNAVAILABLE, errno, "socket");
     }
 
     for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
@@ -171,8 +170,7 @@ int main(int argc, char **argv) {
     }
 
     if(-1 == sendto(sockfd, (const void *)&magic, WOL_MAGIC_SIZE + wol_password_size, 0, (struct sockaddr *)&sa, sizeof(sa))) {
-	perror("sendto");
-	exit errno;
+	error(EX_IOERR, errno, "sendto");
     }
 
     return EX_OK;
