@@ -144,9 +144,9 @@ int main(int argc, char **argv) {
     struct argp argp = { options, parser, "<mac address>", "Wake-On-LAN packet sender" };
     argp_parse(&argp, argc, argv, 0, 0, (void *)&args);
 
-    if(args.use_p) {
-	wol_password_size = strlen(args.password) < WOL_MAGIC_PASSWORD_SIZE ? strlen(args.password) : WOL_MAGIC_PASSWORD_SIZE;
-	strncpy(magic.wol_mg_password, args.password, wol_password_size);
+    int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
+    if(sockfd == -1) {
+	error(EX_UNAVAILABLE, errno, "socket");
     }
 
     struct sockaddr_ll sa;
@@ -157,13 +157,13 @@ int main(int argc, char **argv) {
     sa.sll_halen    = ETH_ALEN;
     memset(sa.sll_addr, 0xFF, ETH_ALEN);
 
-    int sockfd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_WOL));
-    if(sockfd == -1) {
-	error(EX_UNAVAILABLE, errno, "socket");
-    }
-
     for(size_t i = 0; i < WOL_MAGIC_ADDRESS_COUNT; ++i) {
 	magic.wol_mg_macaddr[i] = *args.target_mac_addr;
+    }
+
+    if(args.use_p) {
+	wol_password_size = strlen(args.password) < WOL_MAGIC_PASSWORD_SIZE ? strlen(args.password) : WOL_MAGIC_PASSWORD_SIZE;
+	strncpy(magic.wol_mg_password, args.password, wol_password_size);
     }
 
     struct ifaddrs *ifas;
