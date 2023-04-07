@@ -4,7 +4,7 @@ A Wake-On-LAN utility
 
 ### DESCRIPTION
 
-_wol_ is a command-line tool for implementing the Wake-On-LAN protocol over a local-area network.
+`wol` is a command-line tool for implementing the Wake-On-LAN protocol over a local-area network.
 
 ### INSTALL
 
